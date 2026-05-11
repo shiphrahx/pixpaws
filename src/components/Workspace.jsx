@@ -58,7 +58,6 @@ export default function Workspace({ sourceImage, sourceUrl, onReset }) {
           </div>
         )}
         <ImageDisplay
-          sourceImage={sourceImage}
           sourceUrl={sourceUrl}
           engineResult={result}
           activePresetId={activePresetId}
