@@ -1,5 +1,4 @@
 import { useState, useCallback, useRef } from 'react';
-import Header from './components/Header';
 import UploadZone from './components/UploadZone';
 import Workspace from './components/Workspace';
 import Footer from './components/Footer';
@@ -27,10 +26,9 @@ export default function App() {
 
   return (
     <div className="min-h-screen flex flex-col" style={{ background: 'var(--bg)' }}>
-      <Header />
-      <main className="flex-1 flex flex-col items-center w-full">
+      <main className="flex-1 flex flex-col items-center w-full px-4 py-8">
         {sourceImage ? (
-          <Workspace sourceImage={sourceImage} sourceUrl={sourceUrl} onReset={handleReset} />
+          <Workspace sourceImage={sourceImage} sourceUrl={sourceUrl} onReset={handleReset} onImageLoad={handleImageLoad} />
         ) : (
           <UploadZone onImageLoad={handleImageLoad} />
         )}

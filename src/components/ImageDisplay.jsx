@@ -37,10 +37,11 @@ export default function ImageDisplay({ sourceUrl, engineResult, activePresetId, 
   const preset = presets[activePresetId];
   const dominantBg = preset.bgFill ? `${preset.bgFill}22` : 'rgba(26,26,46,0.04)';
   const animClass = `${scrambling ? 'animate-scramble' : ''} ${crunching ? 'animate-pixel-crunch' : ''}`.trim();
+  const gridCount = engineResult ? `${engineResult.gridW}×${engineResult.gridH}` : null;
 
   return (
-    <div className="flex flex-col gap-4 px-4">
-      <div className="flex justify-end">
+    <div>
+      <div className="flex justify-end px-4 pt-3 pb-1">
         <ViewToggle viewMode={viewMode} onChange={setViewMode} />
       </div>
 
@@ -51,6 +52,9 @@ export default function ImageDisplay({ sourceUrl, engineResult, activePresetId, 
           dominantBg={dominantBg}
           animClass={animClass}
           activePresetId={activePresetId}
+          presetName={preset.name}
+          paletteSize={preset.palette.length}
+          gridCount={gridCount}
         />
       ) : (
         <SliderView
@@ -64,31 +68,55 @@ export default function ImageDisplay({ sourceUrl, engineResult, activePresetId, 
   );
 }
 
-function SideBySide({ sourceUrl, pixelDataUrl, dominantBg, animClass, activePresetId }) {
+function SideBySide({ sourceUrl, pixelDataUrl, dominantBg, animClass, activePresetId, presetName, paletteSize, gridCount }) {
   return (
-    <div className="flex flex-col md:flex-row gap-4 items-center justify-center">
-      <Panel label="Original">
-        <img
-          src={sourceUrl}
-          alt="Original pet photo"
-          className="max-w-full max-h-80 rounded-lg object-contain block"
-          style={{ maxWidth: DISPLAY_SIZE }}
-        />
-      </Panel>
-
-      <div className="hidden md:block w-px self-stretch" style={{ background: 'var(--border)' }} />
-      <div className="block md:hidden h-px w-full" style={{ background: 'var(--border)' }} />
-
-      <Panel label="Pixelified" bg={dominantBg}>
-        {pixelDataUrl && (
+    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', minHeight: 380 }}>
+      {/* Left: Original */}
+      <div
+        className="flex flex-col items-center justify-center p-6"
+        style={{ borderRight: '0.5px solid var(--border)' }}
+      >
+        <span style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--text-tertiary, #9B9BAA)', marginBottom: 12 }}>
+          Original
+        </span>
+        <div
+          className="flex items-center justify-center"
+          style={{ width: 240, height: 240, borderRadius: 8, background: 'var(--bg-secondary, #F0EBE3)', overflow: 'hidden' }}
+        >
           <img
-            src={pixelDataUrl}
-            alt={`Pixel art version of your pet in ${activePresetId} style`}
-            className={`max-w-full max-h-80 rounded-lg image-pixelated block ${animClass}`}
-            style={{ maxWidth: DISPLAY_SIZE }}
+            src={sourceUrl}
+            alt="Original pet photo"
+            className="max-w-full max-h-full object-contain block"
           />
+        </div>
+      </div>
+
+      {/* Right: Pixelified */}
+      <div
+        className="flex flex-col items-center justify-center p-6"
+        style={{ background: 'var(--bg-secondary, #F0EBE3)' }}
+      >
+        <span style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--text-tertiary, #9B9BAA)', marginBottom: 12 }}>
+          Pixelified
+        </span>
+        <div
+          className="flex items-center justify-center"
+          style={{ width: 240, height: 240, borderRadius: 8, background: dominantBg, overflow: 'hidden' }}
+        >
+          {pixelDataUrl && (
+            <img
+              src={pixelDataUrl}
+              alt={`Pixel art version of your pet in ${activePresetId} style`}
+              className={`max-w-full max-h-full object-contain image-pixelated block ${animClass}`}
+            />
+          )}
+        </div>
+        {gridCount && (
+          <span style={{ fontSize: 12, color: 'var(--text-tertiary, #9B9BAA)', marginTop: 8 }}>
+            {presetName} · {paletteSize} colours, {gridCount}
+          </span>
         )}
-      </Panel>
+      </div>
     </div>
   );
 }
@@ -112,7 +140,7 @@ function SliderView({ sourceUrl, pixelDataUrl, animClass, activePresetId }) {
   const onTouchEnd = useCallback(() => { dragging.current = false; }, []);
 
   return (
-    <div className="flex flex-col items-center gap-2">
+    <div className="flex flex-col items-center gap-2 p-6">
       <div
         ref={containerRef}
         className="relative overflow-hidden rounded-xl select-none cursor-col-resize"
@@ -125,7 +153,6 @@ function SliderView({ sourceUrl, pixelDataUrl, animClass, activePresetId }) {
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
       >
-        {/* Pixel art — full width underneath */}
         {pixelDataUrl && (
           <img
             src={pixelDataUrl}
@@ -135,7 +162,6 @@ function SliderView({ sourceUrl, pixelDataUrl, animClass, activePresetId }) {
           />
         )}
 
-        {/* Original — clipped to left side of slider */}
         <div
           className="absolute inset-0 overflow-hidden"
           style={{ clipPath: `inset(0 ${100 - sliderX}% 0 0)` }}
@@ -148,7 +174,6 @@ function SliderView({ sourceUrl, pixelDataUrl, animClass, activePresetId }) {
           />
         </div>
 
-        {/* Divider handle */}
         <div
           className="absolute top-0 bottom-0 w-1 -translate-x-1/2 pointer-events-none"
           style={{ left: `${sliderX}%`, background: '#fff', boxShadow: '0 0 4px rgba(0,0,0,0.4)' }}
@@ -164,20 +189,6 @@ function SliderView({ sourceUrl, pixelDataUrl, animClass, activePresetId }) {
         </div>
       </div>
       <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>Drag to compare</p>
-    </div>
-  );
-}
-
-function Panel({ label, children, bg }) {
-  return (
-    <div className="flex flex-col items-center gap-2">
-      <span className="font-pixel" style={{ fontSize: '8px', color: 'var(--text-secondary)' }}>{label}</span>
-      <div
-        className="rounded-xl p-3 flex items-center justify-center"
-        style={{ background: bg ?? 'var(--surface)', border: '1px solid var(--border)', minWidth: 120, minHeight: 120 }}
-      >
-        {children}
-      </div>
     </div>
   );
 }

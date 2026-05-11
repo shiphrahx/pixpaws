@@ -5,8 +5,10 @@ export default function PresetBar({ activeId, onChange }) {
     <div
       role="radiogroup"
       aria-label="Style preset"
-      className="flex gap-2 px-4 py-3 overflow-x-auto scrollbar-hide"
+      className="flex items-center gap-2 px-4 py-3 overflow-x-auto scrollbar-hide"
+      style={{ borderBottom: '0.5px solid var(--border)' }}
     >
+      <span style={{ fontSize: 12, color: 'var(--text-tertiary, #9B9BAA)', marginRight: 4 }}>Style</span>
       {presetList.map((preset) => (
         <PresetButton
           key={preset.id}
@@ -25,33 +27,20 @@ function PresetButton({ preset, active, onClick }) {
       role="radio"
       aria-checked={active}
       onClick={onClick}
-      className="flex flex-col items-center gap-1.5 px-3 py-2 rounded-xl border transition-all duration-150 shrink-0 outline-none focus-visible:ring-2"
+      className="shrink-0 outline-none focus-visible:ring-2 transition-all duration-150"
       style={{
-        background: active ? 'var(--brand-coral)' : 'var(--surface)',
-        borderColor: active ? 'var(--brand-coral)' : 'var(--border)',
+        padding: '6px 14px',
+        borderRadius: 8,
+        background: active ? '#D85A30' : 'var(--bg-secondary, #F0EBE3)',
         color: active ? '#fff' : 'var(--text-secondary)',
-        minWidth: '80px',
+        fontSize: 13,
+        fontWeight: active ? 500 : 400,
+        border: 'none',
+        cursor: 'pointer',
         '--tw-ring-color': 'var(--brand-coral)',
       }}
     >
-      <span className="font-pixel whitespace-nowrap" style={{ fontSize: '7px' }}>
-        {preset.name}
-      </span>
-      <SwatchStrip palette={preset.palette} />
+      {preset.name}
     </button>
-  );
-}
-
-function SwatchStrip({ palette }) {
-  const shown = palette.slice(0, 8);
-  const w = 56;
-  const h = 6;
-  const sw = w / shown.length;
-  return (
-    <svg width={w} height={h} style={{ display: 'block' }}>
-      {shown.map((color, i) => (
-        <rect key={i} x={i * sw} y={0} width={sw} height={h} fill={color} />
-      ))}
-    </svg>
   );
 }
