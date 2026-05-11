@@ -125,28 +125,28 @@ function SliderView({ sourceUrl, pixelDataUrl, animClass, activePresetId }) {
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
       >
-        {/* Original — full width underneath */}
-        <img
-          src={sourceUrl}
-          alt="Original pet photo"
-          className="absolute inset-0 w-full h-full object-contain"
-          draggable={false}
-        />
-
-        {/* Pixel art — clipped to left side of slider */}
+        {/* Pixel art — full width underneath */}
         {pixelDataUrl && (
-          <div
-            className="absolute inset-0 overflow-hidden"
-            style={{ clipPath: `inset(0 ${100 - sliderX}% 0 0)` }}
-          >
-            <img
-              src={pixelDataUrl}
-              alt={`Pixel art version of your pet in ${activePresetId} style`}
-              className={`absolute inset-0 w-full h-full object-contain image-pixelated ${animClass}`}
-              draggable={false}
-            />
-          </div>
+          <img
+            src={pixelDataUrl}
+            alt={`Pixel art version of your pet in ${activePresetId} style`}
+            className={`absolute inset-0 w-full h-full object-contain image-pixelated ${animClass}`}
+            draggable={false}
+          />
         )}
+
+        {/* Original — clipped to left side of slider */}
+        <div
+          className="absolute inset-0 overflow-hidden"
+          style={{ clipPath: `inset(0 ${100 - sliderX}% 0 0)` }}
+        >
+          <img
+            src={sourceUrl}
+            alt="Original pet photo"
+            className="absolute inset-0 w-full h-full object-contain"
+            draggable={false}
+          />
+        </div>
 
         {/* Divider handle */}
         <div

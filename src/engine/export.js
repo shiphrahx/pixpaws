@@ -1,8 +1,10 @@
 import { pixelate, renderToCanvas } from './pixelate';
 
+const BASE_BLOCK = 8;
+
 export function exportPng(pixelCanvas, gridW, gridH, preset, scale, filename) {
   const outCanvas = document.createElement('canvas');
-  const blockSize = scale;
+  const blockSize = BASE_BLOCK * scale;
   outCanvas.width = gridW * blockSize + (preset.frame?.width ?? 0) * 2;
   outCanvas.height = gridH * blockSize + (preset.frame?.width ?? 0) * 2;
   renderToCanvas(pixelCanvas, gridW, gridH, outCanvas, preset);

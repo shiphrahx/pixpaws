@@ -33,7 +33,7 @@ export default function AdjustPanel({ gridSize, defaultGrid, brightness, contras
         label="Grid size"
         value={gridSize ?? defaultGrid}
         min={16}
-        max={128}
+        max={256}
         step={4}
         display={`${gridSize ?? defaultGrid}×${gridSize ?? defaultGrid}`}
         onChange={onGridSize}
