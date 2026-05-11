@@ -1,0 +1,22 @@
+import { pixelate, renderToCanvas } from './pixelate';
+
+export function exportPng(pixelCanvas, gridW, gridH, preset, scale, filename) {
+  const outCanvas = document.createElement('canvas');
+  const blockSize = scale;
+  outCanvas.width = gridW * blockSize + (preset.frame?.width ?? 0) * 2;
+  outCanvas.height = gridH * blockSize + (preset.frame?.width ?? 0) * 2;
+  renderToCanvas(pixelCanvas, gridW, gridH, outCanvas, preset);
+
+  outCanvas.toBlob((blob) => {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  }, 'image/png');
+}
+
+export function makeFilename(presetId) {
+  return `pixpaws-${presetId}-${Date.now()}.png`;
+}

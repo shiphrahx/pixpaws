@@ -1,0 +1,79 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --brand-coral: #D85A30;
+    --brand-dark: #1A1A2E;
+    --bg: #F5F0EB;
+    --surface: #FFFFFF;
+    --text-primary: #1A1A2E;
+    --text-secondary: #6B6B7B;
+    --border: #E5E0DB;
+    --success: #2D8B4E;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    background-color: var(--bg);
+    color: var(--text-primary);
+    font-family: 'DM Sans', sans-serif;
+    margin: 0;
+    padding: 0;
+  }
+
+  .font-pixel {
+    font-family: 'Press Start 2P', monospace;
+  }
+}
+
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  .image-pixelated {
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+  }
+}
+
+@keyframes pixelCrunch {
+  0% { filter: blur(0px); transform: scale(1); }
+  30% { filter: blur(2px); transform: scale(0.98); }
+  60% { filter: blur(1px) contrast(1.5); transform: scale(0.99); }
+  100% { filter: blur(0px); transform: scale(1); }
+}
+
+@keyframes scramble {
+  0% { opacity: 1; filter: saturate(1); }
+  20% { opacity: 0.6; filter: saturate(3) hue-rotate(30deg); }
+  50% { opacity: 0.4; filter: saturate(0) brightness(2); }
+  80% { opacity: 0.7; filter: saturate(2) hue-rotate(-20deg); }
+  100% { opacity: 1; filter: saturate(1); }
+}
+
+@keyframes bounceScale {
+  0% { transform: scale(1); }
+  40% { transform: scale(0.92); }
+  70% { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+
+.animate-pixel-crunch {
+  animation: pixelCrunch 0.5s ease-in-out;
+}
+
+.animate-scramble {
+  animation: scramble 0.4s ease-in-out;
+}
+
+.animate-bounce-scale {
+  animation: bounceScale 0.35s ease-in-out;
+}
