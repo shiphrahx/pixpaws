@@ -9,20 +9,19 @@ export default function AdjustPanel({ gridSize, defaultGrid, brightness, contras
     }
     document.addEventListener('keydown', onKey);
 
-    // Delay outside-click listener by one frame so the opening click doesn't immediately close the panel
-    let handler;
+    const handlerRef = { current: null };
     const timer = setTimeout(() => {
-      handler = (e) => {
+      handlerRef.current = (e) => {
         if (e.target.closest('[data-adjust-toggle]')) return;
         if (panelRef.current && !panelRef.current.contains(e.target)) onClose();
       };
-      document.addEventListener('mousedown', handler);
+      document.addEventListener('mousedown', handlerRef.current);
     }, 0);
 
     return () => {
       document.removeEventListener('keydown', onKey);
       clearTimeout(timer);
-      if (handler) document.removeEventListener('mousedown', handler);
+      if (handlerRef.current) document.removeEventListener('mousedown', handlerRef.current);
     };
   }, [onClose]);
 
