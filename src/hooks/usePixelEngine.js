@@ -38,6 +38,7 @@ export function usePixelEngine(sourceImage, activePresetId, gridSizeOverride, br
 
   useEffect(() => {
     cacheRef.current = {};
+    setResult(null);
   }, [sourceImage]);
 
   return { result, isProcessing };
