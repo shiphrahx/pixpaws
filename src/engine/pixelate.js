@@ -17,8 +17,8 @@ function applyBrightnessContrast(imageData, brightness, contrast) {
   return imageData;
 }
 
-export function pixelate(sourceImage, preset, gridSize, brightness, contrast, dithering = 'none') {
-  const paletteRgb = buildPaletteRgb(preset.palette);
+export function pixelate(sourceImage, preset, gridSize, brightness, contrast, dithering = 'none', paletteOverride = null) {
+  const paletteRgb = buildPaletteRgb(paletteOverride ?? preset.palette);
 
   let srcW = sourceImage.naturalWidth || sourceImage.width;
   let srcH = sourceImage.naturalHeight || sourceImage.height;

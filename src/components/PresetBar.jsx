@@ -41,12 +41,13 @@ export default function PresetBar({ activeId, onChange }) {
 }
 
 function PresetButton({ preset, active, onClick }) {
+  const isCustom = preset.isCustom;
   return (
     <button
       role="radio"
       aria-checked={active}
       onClick={onClick}
-      className="shrink-0 outline-none focus-visible:ring-2 transition-all duration-150"
+      className="shrink-0 outline-none focus-visible:ring-2 transition-all duration-150 flex items-center gap-1"
       style={{
         padding: '6px 14px',
         borderRadius: 8,
@@ -54,11 +55,12 @@ function PresetButton({ preset, active, onClick }) {
         color: active ? '#fff' : 'var(--text-secondary)',
         fontSize: 13,
         fontWeight: active ? 500 : 400,
-        border: 'none',
+        border: isCustom && !active ? '1px dashed var(--border)' : 'none',
         cursor: 'pointer',
         '--tw-ring-color': 'var(--brand-coral)',
       }}
     >
+      {isCustom && <span style={{ fontSize: 15, lineHeight: 1 }}>+</span>}
       {preset.name}
     </button>
   );

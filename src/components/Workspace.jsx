@@ -3,6 +3,7 @@ import PresetBar from './PresetBar';
 import ImageDisplay from './ImageDisplay';
 import ActionBar from './ActionBar';
 import CropOverlay from './CropOverlay';
+import PaletteBuilder from './PaletteBuilder';
 import { usePixelEngine } from '../hooks/usePixelEngine';
 import { useImageUpload } from '../hooks/useImageUpload';
 import { useDebounced } from '../hooks/useDebounced';
@@ -14,6 +15,9 @@ export default function Workspace({ sourceImage, sourceUrl, onReset, onImageLoad
   const [rawBrightness, debouncedBrightness, setBrightness] = useDebounced(0, 150);
   const [rawContrast, debouncedContrast, setContrast] = useDebounced(0, 150);
   const [dithering, setDithering] = useState('floyd-steinberg');
+  const [customPalette, setCustomPalette] = useState(
+    ['#000000', '#FFFFFF', '#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF']
+  );
 
   // Crop state
   const [isCropping, setIsCropping] = useState(false);
@@ -38,13 +42,15 @@ export default function Workspace({ sourceImage, sourceUrl, onReset, onImageLoad
     setGridSizeOverride(null);
   }, []);
 
+  const paletteOverride = activePresetId === 'custom' ? customPalette : null;
   const { result, isProcessing } = usePixelEngine(
     workingImage,
     activePresetId,
     gridSizeOverride,
     debouncedBrightness,
     debouncedContrast,
-    dithering
+    dithering,
+    paletteOverride
   );
 
   const { isDragging, onDragEnter, onDragOver, onDragLeave, onDrop, onInputChange, openPicker, inputRef } =
@@ -122,6 +128,14 @@ export default function Workspace({ sourceImage, sourceUrl, onReset, onImageLoad
       {/* Main card */}
       <div style={{ background: 'var(--surface)', borderRadius: 12, border: '0.5px solid var(--border)' }}>
         <PresetBar activeId={activePresetId} onChange={handlePresetChange} />
+
+        {activePresetId === 'custom' && (
+          <PaletteBuilder
+            palette={customPalette}
+            onChange={setCustomPalette}
+            sourceImage={workingImage}
+          />
+        )}
 
         <div className="relative">
           {isProcessing && (
