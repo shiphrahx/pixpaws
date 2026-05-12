@@ -1,7 +1,7 @@
 export const nes = {
   id: 'nes',
   name: 'NES',
-  defaultGrid: 56,
+  defaultGrid: 136,
   palette: [
     '#626262', '#001fb2', '#2404c8', '#5200b2',
     '#730076', '#800024', '#730b00', '#522800',

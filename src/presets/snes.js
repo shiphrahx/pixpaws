@@ -1,7 +1,7 @@
 export const snes = {
   id: 'snes',
   name: 'SNES',
-  defaultGrid: 64,
+  defaultGrid: 136,
   palette: [
     '#1a1a2e', '#16213e', '#0f3460', '#533483',
     '#e94560', '#f5f5dc', '#daa520', '#228b22',

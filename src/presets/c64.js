@@ -1,7 +1,7 @@
 export const c64 = {
   id: 'c64',
   name: 'C64',
-  defaultGrid: 56,
+  defaultGrid: 136,
   palette: [
     '#000000', '#ffffff', '#880000', '#aaffee',
     '#cc44cc', '#00cc55', '#0000aa', '#eeee77',

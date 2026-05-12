@@ -1,7 +1,7 @@
 export const modern = {
   id: 'modern',
   name: 'Modern Indie',
-  defaultGrid: 96,
+  defaultGrid: 136,
   palette: [
     '#2c2c3a', '#3d3d52', '#5c5470', '#7b6d8d',
     '#a89bbf', '#c4b5d4', '#e8dff0', '#f5f0f8',
