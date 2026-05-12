@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import UploadZone from './components/UploadZone';
 import Workspace from './components/Workspace';
 import Footer from './components/Footer';
@@ -13,6 +13,10 @@ export default function App() {
     prevUrlRef.current = url;
     setSourceImage(img);
     setSourceUrl(url);
+  }, []);
+
+  useEffect(() => {
+    return () => { if (prevUrlRef.current) URL.revokeObjectURL(prevUrlRef.current); };
   }, []);
 
   const handleReset = useCallback(() => {
