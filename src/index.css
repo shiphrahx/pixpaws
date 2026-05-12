@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+@theme {
+  --container-4xl: 90rem;
+}
+
 @layer base {
   :root {
     --brand-coral: #D85A30;
