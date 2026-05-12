@@ -70,7 +70,7 @@ export default function ImageDisplay({ sourceUrl, engineResult, activePresetId, 
 
 function SideBySide({ sourceUrl, pixelDataUrl, dominantBg, animClass, activePresetId, presetName, paletteSize, gridCount }) {
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', minHeight: 380 }}>
+    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', minHeight: 500 }}>
       {/* Left: Original */}
       <div
         className="flex flex-col items-center justify-center p-6"
@@ -81,7 +81,7 @@ function SideBySide({ sourceUrl, pixelDataUrl, dominantBg, animClass, activePres
         </span>
         <div
           className="flex items-center justify-center"
-          style={{ width: 240, height: 240, borderRadius: 8, background: 'var(--bg-secondary, #F0EBE3)', overflow: 'hidden' }}
+          style={{ width: 360, height: 360, borderRadius: 8, background: 'var(--bg-secondary, #F0EBE3)', overflow: 'hidden' }}
         >
           <img
             src={sourceUrl}
@@ -101,7 +101,7 @@ function SideBySide({ sourceUrl, pixelDataUrl, dominantBg, animClass, activePres
         </span>
         <div
           className="flex items-center justify-center"
-          style={{ width: 240, height: 240, borderRadius: 8, background: dominantBg, overflow: 'hidden' }}
+          style={{ width: 360, height: 360, borderRadius: 8, background: dominantBg, overflow: 'hidden' }}
         >
           {pixelDataUrl && (
             <img

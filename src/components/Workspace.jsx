@@ -51,7 +51,7 @@ export default function Workspace({ sourceImage, sourceUrl, onReset, onImageLoad
       {/* Header inside card */}
       <div className="text-center mb-8">
         <div className="inline-flex items-center gap-2 mb-2">
-          <span style={{ fontSize: 28, fontWeight: 500, color: 'var(--text-primary)', fontFamily: 'var(--font-mono, monospace)', letterSpacing: '-1px' }}>
+          <span style={{ fontSize: 40, fontWeight: 500, color: 'var(--text-primary)', fontFamily: 'var(--font-mono, monospace)', letterSpacing: '-1px' }}>
             pix<span style={{ color: '#D85A30' }}>paws</span>
           </span>
         </div>

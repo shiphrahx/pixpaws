@@ -23,7 +23,7 @@ export default function AdjustPanel({ gridSize, defaultGrid, brightness, contras
       ref={panelRef}
       role="dialog"
       aria-label="Adjust settings"
-      className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 rounded-2xl shadow-xl p-5 z-20 w-72"
+      className="absolute top-full mt-2 left-0 rounded-2xl shadow-xl p-5 z-20 w-72"
       style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}
     >
       <h3 className="font-pixel mb-4 text-center" style={{ fontSize: '9px', color: 'var(--text-primary)' }}>
