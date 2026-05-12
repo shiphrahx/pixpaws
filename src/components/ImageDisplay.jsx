@@ -8,7 +8,6 @@ export default function ImageDisplay({ sourceUrl, engineResult, activePresetId, 
   const [pixelDataUrl, setPixelDataUrl] = useState(null);
   const [viewMode, setViewMode] = useState('sideBySide');
   const [scrambling, setScrambling] = useState(false);
-  const [crunching, setCrunching] = useState(false);
   const prevPresetRef = useRef(activePresetId);
 
   useEffect(() => {
@@ -30,13 +29,9 @@ export default function ImageDisplay({ sourceUrl, engineResult, activePresetId, 
     setPixelDataUrl(canvas.toDataURL());
   }, [engineResult, activePresetId]);
 
-  useEffect(() => {
-    setCrunching(isProcessing);
-  }, [isProcessing]);
-
   const preset = presets[activePresetId];
   const dominantBg = preset.bgFill ? `${preset.bgFill}22` : 'rgba(26,26,46,0.04)';
-  const animClass = `${scrambling ? 'animate-scramble' : ''} ${crunching ? 'animate-pixel-crunch' : ''}`.trim();
+  const animClass = [scrambling && 'animate-scramble', isProcessing && 'animate-pixel-crunch'].filter(Boolean).join(' ');
   const gridCount = engineResult ? `${engineResult.gridW}×${engineResult.gridH}` : null;
 
   return (
