@@ -3,7 +3,7 @@ import AdjustPanel from './AdjustPanel';
 import { exportPng, makeFilename } from '../engine/export';
 import { presets } from '../presets';
 
-export default function ActionBar({ onReset, gridSize, defaultGrid, brightness, contrast, onGridSize, onBrightness, onContrast, engineResult, activePresetId }) {
+export default function ActionBar({ onReset, gridSize, defaultGrid, brightness, contrast, onGridSize, onBrightness, onContrast, dithering, onDithering, engineResult, activePresetId }) {
   const [showAdjust, setShowAdjust] = useState(false);
   const [downloading, setDownloading] = useState(false);
 
@@ -42,6 +42,8 @@ export default function ActionBar({ onReset, gridSize, defaultGrid, brightness, 
               onGridSize={onGridSize}
               onBrightness={onBrightness}
               onContrast={onContrast}
+              dithering={dithering}
+              onDithering={onDithering}
               onClose={() => setShowAdjust(false)}
             />
           )}

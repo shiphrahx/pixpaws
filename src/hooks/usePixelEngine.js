@@ -2,24 +2,23 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { pixelate } from '../engine/pixelate';
 import { presets } from '../presets';
 
-export function usePixelEngine(sourceImage, activePresetId, gridSizeOverride, brightness, contrast) {
+export function usePixelEngine(sourceImage, activePresetId, gridSizeOverride, brightness, contrast, dithering = 'floyd-steinberg') {
   const [result, setResult] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const cacheRef = useRef({});
   const rafRef = useRef(null);
   const sourceImageRef = useRef(sourceImage);
 
-  // Keep a ref to current settings so the image-change effect can read them without being in its deps
-  const settingsRef = useRef({ activePresetId, gridSizeOverride, brightness, contrast });
+  const settingsRef = useRef({ activePresetId, gridSizeOverride, brightness, contrast, dithering });
   useEffect(() => {
-    settingsRef.current = { activePresetId, gridSizeOverride, brightness, contrast };
-  }, [activePresetId, gridSizeOverride, brightness, contrast]);
+    settingsRef.current = { activePresetId, gridSizeOverride, brightness, contrast, dithering };
+  }, [activePresetId, gridSizeOverride, brightness, contrast, dithering]);
 
   const run = useCallback(() => {
     if (!sourceImageRef.current) return;
     const preset = presets[activePresetId];
     const gridSize = gridSizeOverride ?? preset.defaultGrid;
-    const cacheKey = `${activePresetId}-${gridSize}-${brightness}-${contrast}`;
+    const cacheKey = `${activePresetId}-${gridSize}-${brightness}-${contrast}-${dithering}`;
 
     if (cacheRef.current[cacheKey]) {
       setResult(cacheRef.current[cacheKey]);
@@ -31,27 +30,26 @@ export function usePixelEngine(sourceImage, activePresetId, gridSizeOverride, br
 
     const imageSnapshot = sourceImageRef.current;
     rafRef.current = requestAnimationFrame(() => {
-      const out = pixelate(imageSnapshot, preset, gridSize, brightness, contrast);
+      const out = pixelate(imageSnapshot, preset, gridSize, brightness, contrast, dithering);
       cacheRef.current[cacheKey] = out;
       setResult(out);
       setIsProcessing(false);
     });
-  }, [activePresetId, gridSizeOverride, brightness, contrast]);
+  }, [activePresetId, gridSizeOverride, brightness, contrast, dithering]);
 
-  // When source image changes: clear cache+result, re-run with current settings from ref
   useEffect(() => {
     sourceImageRef.current = sourceImage;
     cacheRef.current = {};
     setResult(null);
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
     if (sourceImage) {
-      const { activePresetId: pid, gridSizeOverride: gso, brightness: br, contrast: co } = settingsRef.current;
+      const { activePresetId: pid, gridSizeOverride: gso, brightness: br, contrast: co, dithering: di } = settingsRef.current;
       const preset = presets[pid];
       const gridSize = gso ?? preset.defaultGrid;
       setIsProcessing(true);
       rafRef.current = requestAnimationFrame(() => {
-        const out = pixelate(sourceImage, preset, gridSize, br, co);
-        const cacheKey = `${pid}-${gridSize}-${br}-${co}`;
+        const out = pixelate(sourceImage, preset, gridSize, br, co, di);
+        const cacheKey = `${pid}-${gridSize}-${br}-${co}-${di}`;
         cacheRef.current[cacheKey] = out;
         setResult(out);
         setIsProcessing(false);
@@ -60,7 +58,6 @@ export function usePixelEngine(sourceImage, activePresetId, gridSizeOverride, br
     return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
   }, [sourceImage]);
 
-  // When settings change (but not image): use cache or re-run
   useEffect(() => {
     if (!sourceImageRef.current) return;
     run();

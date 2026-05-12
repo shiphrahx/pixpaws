@@ -12,6 +12,7 @@ export default function Workspace({ sourceImage, sourceUrl, onReset, onImageLoad
   const [gridSizeOverride, setGridSizeOverride] = useState(null);
   const [rawBrightness, debouncedBrightness, setBrightness] = useDebounced(0, 150);
   const [rawContrast, debouncedContrast, setContrast] = useDebounced(0, 150);
+  const [dithering, setDithering] = useState('floyd-steinberg');
 
   const preset = presets[activePresetId];
 
@@ -25,7 +26,8 @@ export default function Workspace({ sourceImage, sourceUrl, onReset, onImageLoad
     activePresetId,
     gridSizeOverride,
     debouncedBrightness,
-    debouncedContrast
+    debouncedContrast,
+    dithering
   );
 
   const { isDragging, onDragEnter, onDragOver, onDragLeave, onDrop, onInputChange, openPicker, inputRef } =
@@ -75,6 +77,8 @@ export default function Workspace({ sourceImage, sourceUrl, onReset, onImageLoad
           onGridSize={setGridSizeOverride}
           onBrightness={setBrightness}
           onContrast={setContrast}
+          dithering={dithering}
+          onDithering={setDithering}
           engineResult={result}
           activePresetId={activePresetId}
         />

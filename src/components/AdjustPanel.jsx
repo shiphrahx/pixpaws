@@ -1,6 +1,13 @@
 import { useEffect, useRef } from 'react';
 
-export default function AdjustPanel({ gridSize, defaultGrid, brightness, contrast, onGridSize, onBrightness, onContrast, onClose }) {
+const DITHER_OPTIONS = [
+  { value: 'none',            label: 'None' },
+  { value: 'floyd-steinberg', label: 'Floyd-S' },
+  { value: 'ordered',         label: 'Ordered' },
+  { value: 'atkinson',        label: 'Atkinson' },
+];
+
+export default function AdjustPanel({ gridSize, defaultGrid, brightness, contrast, onGridSize, onBrightness, onContrast, dithering, onDithering, onClose }) {
   const panelRef = useRef(null);
 
   useEffect(() => {
@@ -63,6 +70,30 @@ export default function AdjustPanel({ gridSize, defaultGrid, brightness, contras
         display={contrast > 0 ? `+${contrast}` : String(contrast)}
         onChange={onContrast}
       />
+
+      <div className="mb-1">
+        <label className="text-xs font-medium block mb-2" style={{ color: 'var(--text-primary)' }}>Dithering</label>
+        <div className="flex rounded-lg overflow-hidden" style={{ border: '0.5px solid var(--border)' }}>
+          {DITHER_OPTIONS.map((opt) => (
+            <button
+              key={opt.value}
+              onClick={() => onDithering(opt.value)}
+              className="flex-1 text-xs py-1.5 transition-all duration-150 outline-none focus-visible:ring-2"
+              style={{
+                background: dithering === opt.value ? '#D85A30' : 'var(--bg-secondary, #F0EBE3)',
+                color: dithering === opt.value ? '#fff' : 'var(--text-secondary)',
+                fontWeight: dithering === opt.value ? 500 : 400,
+                border: 'none',
+                cursor: 'pointer',
+                fontSize: 11,
+                '--tw-ring-color': 'var(--brand-coral)',
+              }}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { buildPaletteRgb, quantiseImageData } from './quantise';
+import { buildPaletteRgb, quantise } from './quantise';
 
 const MAX_SOURCE_SIZE = 1000;
 
@@ -17,7 +17,7 @@ function applyBrightnessContrast(imageData, brightness, contrast) {
   return imageData;
 }
 
-export function pixelate(sourceImage, preset, gridSize, brightness, contrast) {
+export function pixelate(sourceImage, preset, gridSize, brightness, contrast, dithering = 'none') {
   const paletteRgb = buildPaletteRgb(preset.palette);
 
   let srcW = sourceImage.naturalWidth || sourceImage.width;
@@ -50,7 +50,7 @@ export function pixelate(sourceImage, preset, gridSize, brightness, contrast) {
 
   let imgData = srcCtx.getImageData(0, 0, gridW, gridH);
   imgData = applyBrightnessContrast(imgData, brightness, contrast);
-  imgData = quantiseImageData(imgData, paletteRgb);
+  imgData = quantise(imgData, paletteRgb, dithering);
   srcCtx.putImageData(imgData, 0, 0);
 
   return { pixelCanvas: srcCanvas, gridW, gridH };
