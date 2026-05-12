@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import PresetBar from './PresetBar';
 import ImageDisplay from './ImageDisplay';
 import ActionBar from './ActionBar';
@@ -6,6 +6,7 @@ import CropOverlay from './CropOverlay';
 import PaletteBuilder from './PaletteBuilder';
 import ShareModal from './ShareModal';
 import { usePixelEngine } from '../hooks/usePixelEngine';
+import { usePixelAnimation } from '../hooks/usePixelAnimation';
 import { useImageUpload } from '../hooks/useImageUpload';
 import { useDebounced } from '../hooks/useDebounced';
 import { presets } from '../presets';
@@ -46,6 +47,19 @@ export default function Workspace({ sourceImage, sourceUrl, onReset, onImageLoad
   }, []);
 
   const paletteOverride = activePresetId === 'custom' ? customPalette : null;
+
+  const { animFrame, isAnimating, animate, cancel } = usePixelAnimation();
+
+  // Fire animation when image, preset, or dithering changes (not on grid/b/c drag)
+  useEffect(() => {
+    if (!workingImage) return;
+    const preset = presets[activePresetId];
+    const gridSize = preset.defaultGrid;
+    animate(workingImage, preset, gridSize, dithering, paletteOverride);
+    return () => cancel();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [workingImage, activePresetId, dithering]);
+
   const { result, isProcessing } = usePixelEngine(
     workingImage,
     activePresetId,
@@ -157,6 +171,7 @@ export default function Workspace({ sourceImage, sourceUrl, onReset, onImageLoad
             activePresetId={activePresetId}
             activeFrame={activeFrame}
             isProcessing={isProcessing}
+            animFrame={animFrame}
           />
         </div>
 

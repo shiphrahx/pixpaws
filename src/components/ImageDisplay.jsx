@@ -6,7 +6,7 @@ import { presets } from '../presets';
 const DISPLAY_SIZE = 320;
 const SCRAMBLE_DURATION_MS = 400;
 
-export default function ImageDisplay({ sourceUrl, engineResult, activePresetId, activeFrame, isProcessing }) {
+export default function ImageDisplay({ sourceUrl, engineResult, activePresetId, activeFrame, isProcessing, animFrame }) {
   const [pixelDataUrl, setPixelDataUrl] = useState(null);
   const [viewMode, setViewMode] = useState('sideBySide');
   const [scrambling, setScrambling] = useState(false);
@@ -32,6 +32,15 @@ export default function ImageDisplay({ sourceUrl, engineResult, activePresetId, 
     setPixelDataUrl(framedCanvas.toDataURL());
   }, [engineResult, activePresetId, activeFrame]);
 
+  // Convert animFrame canvas to data URL for display
+  const [animDataUrl, setAnimDataUrl] = useState(null);
+  useEffect(() => {
+    if (!animFrame) { setAnimDataUrl(null); return; }
+    setAnimDataUrl(animFrame.toDataURL());
+  }, [animFrame]);
+
+  const displayDataUrl = animDataUrl || pixelDataUrl;
+
   const preset = presets[activePresetId];
   const dominantBg = preset.bgFill ? `${preset.bgFill}22` : 'rgba(26,26,46,0.04)';
   const animClass = [scrambling && 'animate-scramble', isProcessing && 'animate-pixel-crunch'].filter(Boolean).join(' ');
@@ -46,7 +55,7 @@ export default function ImageDisplay({ sourceUrl, engineResult, activePresetId, 
       {viewMode === 'sideBySide' ? (
         <SideBySide
           sourceUrl={sourceUrl}
-          pixelDataUrl={pixelDataUrl}
+          pixelDataUrl={displayDataUrl}
           dominantBg={dominantBg}
           animClass={animClass}
           activePresetId={activePresetId}
@@ -57,7 +66,7 @@ export default function ImageDisplay({ sourceUrl, engineResult, activePresetId, 
       ) : (
         <SliderView
           sourceUrl={sourceUrl}
-          pixelDataUrl={pixelDataUrl}
+          pixelDataUrl={displayDataUrl}
           animClass={animClass}
           activePresetId={activePresetId}
         />
