@@ -3,6 +3,7 @@ import { renderToCanvas } from '../engine/pixelate';
 import { presets } from '../presets';
 
 const DISPLAY_SIZE = 320;
+const SCRAMBLE_DURATION_MS = 400;
 
 export default function ImageDisplay({ sourceUrl, engineResult, activePresetId, isProcessing }) {
   const [pixelDataUrl, setPixelDataUrl] = useState(null);
@@ -18,7 +19,7 @@ export default function ImageDisplay({ sourceUrl, engineResult, activePresetId, 
     if (prevPresetRef.current !== activePresetId) {
       setScrambling(true);
       prevPresetRef.current = activePresetId;
-      setTimeout(() => setScrambling(false), 400);
+      setTimeout(() => setScrambling(false), SCRAMBLE_DURATION_MS);
     }
 
     const canvas = document.createElement('canvas');
