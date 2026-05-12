@@ -43,6 +43,7 @@ export function pixelate(sourceImage, preset, gridSize, brightness, contrast) {
   srcCanvas.width = gridW;
   srcCanvas.height = gridH;
   const srcCtx = srcCanvas.getContext('2d');
+  if (!srcCtx) throw new Error('pixpaws: 2D canvas context unavailable');
   srcCtx.imageSmoothingEnabled = true;
   srcCtx.imageSmoothingQuality = 'high';
   srcCtx.drawImage(sourceImage, 0, 0, gridW, gridH);
