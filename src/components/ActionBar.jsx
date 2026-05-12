@@ -18,32 +18,33 @@ export default function ActionBar({ onReset, gridSize, defaultGrid, brightness, 
 
   return (
     <div
-      className="flex items-center justify-between px-4 py-3 relative"
+      className="flex items-center justify-between px-4 py-3"
       style={{ borderTop: '0.5px solid var(--border)' }}
     >
-      {showAdjust && (
-        <AdjustPanel
-          gridSize={gridSize}
-          defaultGrid={defaultGrid}
-          brightness={brightness}
-          contrast={contrast}
-          onGridSize={onGridSize}
-          onBrightness={onBrightness}
-          onContrast={onContrast}
-          onClose={() => setShowAdjust(false)}
-        />
-      )}
-
       <div className="flex gap-2">
         <OutlineButton onClick={onReset}>
           <UploadIcon /> Upload new photo
         </OutlineButton>
-        <OutlineButton
-          onClick={() => setShowAdjust((v) => !v)}
-          active={showAdjust}
-        >
-          <AdjustIcon /> Adjust grid
-        </OutlineButton>
+        <div style={{ position: 'relative' }}>
+          <OutlineButton
+            onClick={() => setShowAdjust((v) => !v)}
+            active={showAdjust}
+          >
+            <AdjustIcon /> Adjust grid
+          </OutlineButton>
+          {showAdjust && (
+            <AdjustPanel
+              gridSize={gridSize}
+              defaultGrid={defaultGrid}
+              brightness={brightness}
+              contrast={contrast}
+              onGridSize={onGridSize}
+              onBrightness={onBrightness}
+              onContrast={onContrast}
+              onClose={() => setShowAdjust(false)}
+            />
+          )}
+        </div>
       </div>
 
       <div>

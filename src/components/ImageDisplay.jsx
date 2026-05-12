@@ -71,43 +71,42 @@ export default function ImageDisplay({ sourceUrl, engineResult, activePresetId, 
 function SideBySide({ sourceUrl, pixelDataUrl, dominantBg, animClass, activePresetId, presetName, paletteSize, gridCount }) {
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
-      {/* Left: Original */}
+      {/* Left: Original — baseline alignment */}
       <div
-        className="flex flex-col items-center p-4 pt-5"
-        style={{ borderRight: '0.5px solid var(--border)' }}
+        className="flex flex-col items-center"
+        style={{ padding: '20px 16px 16px', borderRight: '0.5px solid var(--border)' }}
       >
         <span style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--text-tertiary, #9B9BAA)', marginBottom: 12 }}>
           Original
         </span>
         <div
-          className="flex items-center justify-center w-full"
-          style={{ flex: 1, borderRadius: 8, background: 'var(--bg-secondary, #F0EBE3)', overflow: 'hidden', minHeight: 630 }}
+          style={{ width: '100%', aspectRatio: '4/3', borderRadius: 8, background: 'var(--bg-secondary, #F0EBE3)', overflow: 'hidden' }}
         >
           <img
             src={sourceUrl}
             alt="Original pet photo"
-            className="w-full h-full object-contain block"
+            style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }}
           />
         </div>
       </div>
 
-      {/* Right: Pixelified */}
+      {/* Right: Pixelified — sits higher (less top padding) */}
       <div
-        className="flex flex-col items-center p-4 pt-5"
-        style={{ background: 'var(--bg-secondary, #F0EBE3)' }}
+        className="flex flex-col items-center"
+        style={{ padding: '4px 16px 16px', background: 'var(--bg-secondary, #F0EBE3)' }}
       >
         <span style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--text-tertiary, #9B9BAA)', marginBottom: 12 }}>
           Pixelified
         </span>
         <div
-          className="flex items-center justify-center w-full"
-          style={{ flex: 1, borderRadius: 8, background: dominantBg, overflow: 'hidden', minHeight: 630 }}
+          style={{ width: '100%', aspectRatio: '4/3', borderRadius: 8, background: dominantBg, overflow: 'hidden' }}
         >
           {pixelDataUrl && (
             <img
               src={pixelDataUrl}
               alt={`Pixel art version of your pet in ${activePresetId} style`}
-              className={`w-full h-full object-contain image-pixelated block ${animClass}`}
+              className={animClass}
+              style={{ width: '100%', height: '100%', objectFit: 'contain', imageRendering: 'pixelated', display: 'block' }}
             />
           )}
         </div>
