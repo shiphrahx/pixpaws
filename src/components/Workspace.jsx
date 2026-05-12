@@ -1,26 +1,11 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import PresetBar from './PresetBar';
 import ImageDisplay from './ImageDisplay';
 import ActionBar from './ActionBar';
 import { usePixelEngine } from '../hooks/usePixelEngine';
 import { useImageUpload } from '../hooks/useImageUpload';
+import { useDebounced } from '../hooks/useDebounced';
 import { presets } from '../presets';
-
-function useDebounced(initial, delay) {
-  const [raw, setRaw] = useState(initial);
-  const [debounced, setDebounced] = useState(initial);
-  const timer = useRef(null);
-
-  const set = useCallback((v) => {
-    setRaw(v);
-    clearTimeout(timer.current);
-    timer.current = setTimeout(() => setDebounced(v), delay);
-  }, [delay]);
-
-  useEffect(() => () => clearTimeout(timer.current), []);
-
-  return [raw, debounced, set];
-}
 
 export default function Workspace({ sourceImage, sourceUrl, onReset, onImageLoad }) {
   const [activePresetId, setActivePresetId] = useState('gameboy');
