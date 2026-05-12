@@ -81,7 +81,7 @@ function SideBySide({ sourceUrl, pixelDataUrl, dominantBg, animClass, activePres
         </span>
         <div
           className="flex items-center justify-center w-full"
-          style={{ flex: 1, borderRadius: 8, background: 'var(--bg-secondary, #F0EBE3)', overflow: 'hidden', minHeight: 420 }}
+          style={{ flex: 1, borderRadius: 8, background: 'var(--bg-secondary, #F0EBE3)', overflow: 'hidden', minHeight: 630 }}
         >
           <img
             src={sourceUrl}
@@ -101,7 +101,7 @@ function SideBySide({ sourceUrl, pixelDataUrl, dominantBg, animClass, activePres
         </span>
         <div
           className="flex items-center justify-center w-full"
-          style={{ flex: 1, borderRadius: 8, background: dominantBg, overflow: 'hidden', minHeight: 420 }}
+          style={{ flex: 1, borderRadius: 8, background: dominantBg, overflow: 'hidden', minHeight: 630 }}
         >
           {pixelDataUrl && (
             <img
