@@ -4,6 +4,7 @@ import ImageDisplay from './ImageDisplay';
 import ActionBar from './ActionBar';
 import CropOverlay from './CropOverlay';
 import PaletteBuilder from './PaletteBuilder';
+import ShareModal from './ShareModal';
 import { usePixelEngine } from '../hooks/usePixelEngine';
 import { useImageUpload } from '../hooks/useImageUpload';
 import { useDebounced } from '../hooks/useDebounced';
@@ -18,6 +19,7 @@ export default function Workspace({ sourceImage, sourceUrl, onReset, onImageLoad
   const [customPalette, setCustomPalette] = useState(
     ['#000000', '#FFFFFF', '#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF']
   );
+  const [shareOpen, setShareOpen] = useState(false);
 
   // Crop state
   const [isCropping, setIsCropping] = useState(false);
@@ -161,6 +163,7 @@ export default function Workspace({ sourceImage, sourceUrl, onReset, onImageLoad
           onCrop={handleCropOpen}
           cropActive={!!cropRegion}
           onCropReset={handleCropReset}
+          onShare={() => setShareOpen(true)}
           gridSize={gridSizeOverride}
           defaultGrid={preset.defaultGrid}
           brightness={rawBrightness}
@@ -213,6 +216,16 @@ export default function Workspace({ sourceImage, sourceUrl, onReset, onImageLoad
         className="hidden"
         aria-hidden="true"
       />
+
+      {shareOpen && (
+        <ShareModal
+          sourceImage={workingImage}
+          engineResult={result}
+          activePresetId={activePresetId}
+          customPalette={customPalette}
+          onClose={() => setShareOpen(false)}
+        />
+      )}
     </div>
   );
 }

@@ -3,7 +3,7 @@ import AdjustPanel from './AdjustPanel';
 import { exportPng, makeFilename } from '../engine/export';
 import { presets } from '../presets';
 
-export default function ActionBar({ onReset, onCrop, cropActive, onCropReset, gridSize, defaultGrid, brightness, contrast, onGridSize, onBrightness, onContrast, dithering, onDithering, engineResult, activePresetId }) {
+export default function ActionBar({ onReset, onCrop, cropActive, onCropReset, onShare, gridSize, defaultGrid, brightness, contrast, onGridSize, onBrightness, onContrast, dithering, onDithering, engineResult, activePresetId }) {
   const [showAdjust, setShowAdjust] = useState(false);
   const [downloading, setDownloading] = useState(false);
 
@@ -54,7 +54,22 @@ export default function ActionBar({ onReset, onCrop, cropActive, onCropReset, gr
           </div>
         </div>
 
-        <div>
+        <div className="flex gap-2">
+          <button
+            onClick={onShare}
+            disabled={!engineResult}
+            className="flex items-center gap-1.5 outline-none focus-visible:ring-2 disabled:opacity-40 transition-all duration-150"
+            style={{
+              padding: '6px 14px', borderRadius: 8,
+              background: 'var(--bg-secondary, #F0EBE3)',
+              color: 'var(--text-secondary)', fontSize: 13, fontWeight: 500,
+              border: '0.5px solid var(--border)',
+              cursor: engineResult ? 'pointer' : 'default',
+              '--tw-ring-color': 'var(--brand-coral)',
+            }}
+          >
+            <ShareIcon /> Share
+          </button>
           <button
             onClick={doExport}
             disabled={!engineResult}
@@ -146,6 +161,18 @@ function AdjustIcon() {
       <line x1="1" y1="14" x2="7" y2="14" />
       <line x1="9" y1="8" x2="15" y2="8" />
       <line x1="17" y1="16" x2="23" y2="16" />
+    </svg>
+  );
+}
+
+function ShareIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="18" cy="5" r="3" />
+      <circle cx="6" cy="12" r="3" />
+      <circle cx="18" cy="19" r="3" />
+      <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+      <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
     </svg>
   );
 }
