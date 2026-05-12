@@ -70,44 +70,44 @@ export default function ImageDisplay({ sourceUrl, engineResult, activePresetId, 
 
 function SideBySide({ sourceUrl, pixelDataUrl, dominantBg, animClass, activePresetId, presetName, paletteSize, gridCount }) {
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', minHeight: 500 }}>
+    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
       {/* Left: Original */}
       <div
-        className="flex flex-col items-center justify-center p-6"
+        className="flex flex-col items-center p-4 pt-5"
         style={{ borderRight: '0.5px solid var(--border)' }}
       >
         <span style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--text-tertiary, #9B9BAA)', marginBottom: 12 }}>
           Original
         </span>
         <div
-          className="flex items-center justify-center"
-          style={{ width: 360, height: 360, borderRadius: 8, background: 'var(--bg-secondary, #F0EBE3)', overflow: 'hidden' }}
+          className="flex items-center justify-center w-full"
+          style={{ flex: 1, borderRadius: 8, background: 'var(--bg-secondary, #F0EBE3)', overflow: 'hidden', minHeight: 420 }}
         >
           <img
             src={sourceUrl}
             alt="Original pet photo"
-            className="max-w-full max-h-full object-contain block"
+            className="w-full h-full object-contain block"
           />
         </div>
       </div>
 
       {/* Right: Pixelified */}
       <div
-        className="flex flex-col items-center justify-center p-6"
+        className="flex flex-col items-center p-4 pt-5"
         style={{ background: 'var(--bg-secondary, #F0EBE3)' }}
       >
         <span style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--text-tertiary, #9B9BAA)', marginBottom: 12 }}>
           Pixelified
         </span>
         <div
-          className="flex items-center justify-center"
-          style={{ width: 360, height: 360, borderRadius: 8, background: dominantBg, overflow: 'hidden' }}
+          className="flex items-center justify-center w-full"
+          style={{ flex: 1, borderRadius: 8, background: dominantBg, overflow: 'hidden', minHeight: 420 }}
         >
           {pixelDataUrl && (
             <img
               src={pixelDataUrl}
               alt={`Pixel art version of your pet in ${activePresetId} style`}
-              className={`max-w-full max-h-full object-contain image-pixelated block ${animClass}`}
+              className={`w-full h-full object-contain image-pixelated block ${animClass}`}
             />
           )}
         </div>
