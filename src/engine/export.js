@@ -10,6 +10,10 @@ export function exportPng(pixelCanvas, gridW, gridH, preset, scale, filename) {
   renderToCanvas(pixelCanvas, gridW, gridH, outCanvas, preset);
 
   outCanvas.toBlob((blob) => {
+    if (!blob) {
+      console.error('pixpaws: export failed — toBlob returned null');
+      return;
+    }
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
