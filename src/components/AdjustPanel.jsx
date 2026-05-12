@@ -7,15 +7,22 @@ export default function AdjustPanel({ gridSize, defaultGrid, brightness, contras
     function onKey(e) {
       if (e.key === 'Escape') onClose();
     }
-    function onOutside(e) {
-      if (e.target.closest('[data-adjust-toggle]')) return;
-      if (panelRef.current && !panelRef.current.contains(e.target)) onClose();
-    }
     document.addEventListener('keydown', onKey);
-    document.addEventListener('mousedown', onOutside);
+
+    // Delay outside-click listener by one frame so the opening click doesn't immediately close the panel
+    let handler;
+    const timer = setTimeout(() => {
+      handler = (e) => {
+        if (e.target.closest('[data-adjust-toggle]')) return;
+        if (panelRef.current && !panelRef.current.contains(e.target)) onClose();
+      };
+      document.addEventListener('mousedown', handler);
+    }, 0);
+
     return () => {
       document.removeEventListener('keydown', onKey);
-      document.removeEventListener('mousedown', onOutside);
+      clearTimeout(timer);
+      if (handler) document.removeEventListener('mousedown', handler);
     };
   }, [onClose]);
 
