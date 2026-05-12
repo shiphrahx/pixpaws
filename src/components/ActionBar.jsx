@@ -3,7 +3,7 @@ import AdjustPanel from './AdjustPanel';
 import { exportPng, makeFilename } from '../engine/export';
 import { presets } from '../presets';
 
-export default function ActionBar({ onReset, gridSize, defaultGrid, brightness, contrast, onGridSize, onBrightness, onContrast, dithering, onDithering, engineResult, activePresetId }) {
+export default function ActionBar({ onReset, onCrop, cropActive, onCropReset, gridSize, defaultGrid, brightness, contrast, onGridSize, onBrightness, onContrast, dithering, onDithering, engineResult, activePresetId }) {
   const [showAdjust, setShowAdjust] = useState(false);
   const [downloading, setDownloading] = useState(false);
 
@@ -18,65 +18,82 @@ export default function ActionBar({ onReset, gridSize, defaultGrid, brightness, 
 
   return (
     <div
-      className="flex items-center justify-between px-4 py-3"
+      className="flex flex-col gap-2 px-4 py-3"
       style={{ borderTop: '0.5px solid var(--border)' }}
     >
-      <div className="flex gap-2">
-        <OutlineButton onClick={onReset}>
-          <UploadIcon /> Upload new photo
-        </OutlineButton>
-        <div style={{ position: 'relative' }}>
-          <OutlineButton
-            onClick={() => setShowAdjust((v) => !v)}
-            active={showAdjust}
-            data-adjust-toggle
-          >
-            <AdjustIcon /> Adjust grid
+      <div className="flex items-center justify-between">
+        <div className="flex gap-2 flex-wrap">
+          <OutlineButton onClick={onReset}>
+            <UploadIcon /> Upload new photo
           </OutlineButton>
-          {showAdjust && (
-            <AdjustPanel
-              gridSize={gridSize}
-              defaultGrid={defaultGrid}
-              brightness={brightness}
-              contrast={contrast}
-              onGridSize={onGridSize}
-              onBrightness={onBrightness}
-              onContrast={onContrast}
-              dithering={dithering}
-              onDithering={onDithering}
-              onClose={() => setShowAdjust(false)}
-            />
-          )}
+          <OutlineButton onClick={onCrop}>
+            <CropIcon /> Crop
+          </OutlineButton>
+          <div style={{ position: 'relative' }}>
+            <OutlineButton
+              onClick={() => setShowAdjust((v) => !v)}
+              active={showAdjust}
+              data-adjust-toggle
+            >
+              <AdjustIcon /> Adjust grid
+            </OutlineButton>
+            {showAdjust && (
+              <AdjustPanel
+                gridSize={gridSize}
+                defaultGrid={defaultGrid}
+                brightness={brightness}
+                contrast={contrast}
+                onGridSize={onGridSize}
+                onBrightness={onBrightness}
+                onContrast={onContrast}
+                dithering={dithering}
+                onDithering={onDithering}
+                onClose={() => setShowAdjust(false)}
+              />
+            )}
+          </div>
+        </div>
+
+        <div>
+          <button
+            onClick={doExport}
+            disabled={!engineResult}
+            className="flex items-center gap-1.5 outline-none focus-visible:ring-2 disabled:opacity-40 transition-all duration-150"
+            style={{
+              padding: '6px 14px',
+              borderRadius: 8,
+              background: downloading ? 'var(--success, #2D8B4E)' : '#D85A30',
+              color: '#fff',
+              fontSize: 13,
+              fontWeight: 500,
+              border: 'none',
+              cursor: engineResult ? 'pointer' : 'default',
+              animation: downloading ? 'bounceScale 0.35s ease-in-out' : 'none',
+              '--tw-ring-color': 'var(--brand-coral)',
+            }}
+          >
+            <DownloadIcon />
+            {downloading ? '✓ Saved!' : 'Download PNG'}
+          </button>
         </div>
       </div>
 
-      <div>
-        <button
-          onClick={doExport}
-          disabled={!engineResult}
-          className="flex items-center gap-1.5 outline-none focus-visible:ring-2 disabled:opacity-40 transition-all duration-150"
-          style={{
-            padding: '6px 14px',
-            borderRadius: 8,
-            background: downloading ? 'var(--success, #2D8B4E)' : '#D85A30',
-            color: '#fff',
-            fontSize: 13,
-            fontWeight: 500,
-            border: 'none',
-            cursor: engineResult ? 'pointer' : 'default',
-            animation: downloading ? 'bounceScale 0.35s ease-in-out' : 'none',
-            '--tw-ring-color': 'var(--brand-coral)',
-          }}
-        >
-          <DownloadIcon />
-          {downloading ? '✓ Saved!' : 'Download PNG'}
-        </button>
-      </div>
+      {cropActive && (
+        <div style={{ fontSize: 12, color: 'var(--text-tertiary, #9B9BAA)' }}>
+          Crop active ·{' '}
+          <button
+            onClick={onCropReset}
+            style={{ background: 'none', border: 'none', padding: 0, fontSize: 12, color: 'var(--brand-coral)', cursor: 'pointer', textDecoration: 'underline' }}
+          >
+            Reset crop
+          </button>
+        </div>
+      )}
     </div>
   );
 }
 
-function OutlineButton({ onClick, children, active }) {
+function OutlineButton({ onClick, children, active, ...rest }) {
   return (
     <button
       onClick={onClick}
@@ -91,6 +108,7 @@ function OutlineButton({ onClick, children, active }) {
         cursor: 'pointer',
         '--tw-ring-color': 'var(--brand-coral)',
       }}
+      {...rest}
     >
       {children}
     </button>
@@ -103,6 +121,15 @@ function UploadIcon() {
       <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
       <polyline points="17 8 12 3 7 8" />
       <line x1="12" y1="3" x2="12" y2="15" />
+    </svg>
+  );
+}
+
+function CropIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M6 2v14a2 2 0 0 0 2 2h14" />
+      <path d="M18 22V8a2 2 0 0 0-2-2H2" />
     </svg>
   );
 }
