@@ -59,7 +59,7 @@ export default function Workspace({ sourceImage, sourceUrl, onReset, onImageLoad
       </div>
 
       {/* Main card */}
-      <div style={{ background: 'var(--surface)', borderRadius: 12, border: '0.5px solid var(--border)', overflow: 'hidden' }}>
+      <div style={{ background: 'var(--surface)', borderRadius: 12, border: '0.5px solid var(--border)' }}>
         <PresetBar activeId={activePresetId} onChange={handlePresetChange} />
 
         <div className="relative">
