@@ -90,10 +90,10 @@ function SideBySide({ sourceUrl, pixelDataUrl, dominantBg, animClass, activePres
         </div>
       </div>
 
-      {/* Right: Pixelified — sits higher (less top padding) */}
+      {/* Right: Pixelified */}
       <div
         className="flex flex-col items-center"
-        style={{ padding: '4px 16px 16px', background: 'var(--bg-secondary, #F0EBE3)' }}
+        style={{ padding: '20px 16px 16px' }}
       >
         <span style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--text-tertiary, #9B9BAA)', marginBottom: 12 }}>
           Pixelified
