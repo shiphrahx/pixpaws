@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { FRAME_OPTIONS } from '../engine/frames';
 
 const DITHER_OPTIONS = [
   { value: 'none',            label: 'None' },
@@ -7,7 +8,7 @@ const DITHER_OPTIONS = [
   { value: 'atkinson',        label: 'Atkinson' },
 ];
 
-export default function AdjustPanel({ gridSize, defaultGrid, brightness, contrast, onGridSize, onBrightness, onContrast, dithering, onDithering, onClose }) {
+export default function AdjustPanel({ gridSize, defaultGrid, brightness, contrast, onGridSize, onBrightness, onContrast, dithering, onDithering, activeFrame, onFrame, onClose }) {
   const panelRef = useRef(null);
 
   useEffect(() => {
@@ -70,6 +71,30 @@ export default function AdjustPanel({ gridSize, defaultGrid, brightness, contras
         display={contrast > 0 ? `+${contrast}` : String(contrast)}
         onChange={onContrast}
       />
+
+      <div className="mb-4">
+        <label className="text-xs font-medium block mb-2" style={{ color: 'var(--text-primary)' }}>Frame</label>
+        <div className="flex rounded-lg overflow-hidden" style={{ border: '0.5px solid var(--border)' }}>
+          {FRAME_OPTIONS.map((opt) => (
+            <button
+              key={opt.id}
+              onClick={() => onFrame(opt.id)}
+              className="flex-1 text-xs py-1.5 transition-all duration-150 outline-none focus-visible:ring-2"
+              style={{
+                background: activeFrame === opt.id ? '#D85A30' : 'var(--bg-secondary, #F0EBE3)',
+                color: activeFrame === opt.id ? '#fff' : 'var(--text-secondary)',
+                fontWeight: activeFrame === opt.id ? 500 : 400,
+                border: 'none',
+                cursor: 'pointer',
+                fontSize: 10,
+                '--tw-ring-color': 'var(--brand-coral)',
+              }}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      </div>
 
       <div className="mb-1">
         <label className="text-xs font-medium block mb-2" style={{ color: 'var(--text-primary)' }}>Dithering</label>

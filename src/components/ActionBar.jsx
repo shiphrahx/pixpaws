@@ -3,7 +3,7 @@ import AdjustPanel from './AdjustPanel';
 import { exportPng, makeFilename } from '../engine/export';
 import { presets } from '../presets';
 
-export default function ActionBar({ onReset, onCrop, cropActive, onCropReset, onShare, gridSize, defaultGrid, brightness, contrast, onGridSize, onBrightness, onContrast, dithering, onDithering, engineResult, activePresetId }) {
+export default function ActionBar({ onReset, onCrop, cropActive, onCropReset, onShare, gridSize, defaultGrid, brightness, contrast, onGridSize, onBrightness, onContrast, dithering, onDithering, activeFrame, onFrame, engineResult, activePresetId }) {
   const [showAdjust, setShowAdjust] = useState(false);
   const [downloading, setDownloading] = useState(false);
 
@@ -12,7 +12,7 @@ export default function ActionBar({ onReset, onCrop, cropActive, onCropReset, on
     setDownloading(true);
     const preset = presets[activePresetId];
     const { pixelCanvas, gridW, gridH } = engineResult;
-    exportPng(pixelCanvas, gridW, gridH, preset, 4, makeFilename(activePresetId));
+    exportPng(pixelCanvas, gridW, gridH, preset, 4, makeFilename(activePresetId), activeFrame);
     setTimeout(() => setDownloading(false), 800);
   }, [engineResult, activePresetId]);
 
@@ -48,6 +48,8 @@ export default function ActionBar({ onReset, onCrop, cropActive, onCropReset, on
                 onContrast={onContrast}
                 dithering={dithering}
                 onDithering={onDithering}
+                activeFrame={activeFrame}
+                onFrame={onFrame}
                 onClose={() => setShowAdjust(false)}
               />
             )}

@@ -2,13 +2,14 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import { generateShareCard } from '../engine/shareCard';
 import { presets } from '../presets';
 import { renderToCanvas } from '../engine/pixelate';
+import { applyFrame } from '../engine/frames';
 
 const FORMATS = [
   { value: 'landscape', label: 'Landscape (Twitter)' },
   { value: 'square',    label: 'Square (Instagram)' },
 ];
 
-export default function ShareModal({ sourceImage, engineResult, activePresetId, customPalette, onClose }) {
+export default function ShareModal({ sourceImage, engineResult, activePresetId, activeFrame, customPalette, onClose }) {
   const [format, setFormat] = useState('landscape');
   const [cardUrl, setCardUrl] = useState(null);
   const [cardCanvas, setCardCanvas] = useState(null);
@@ -38,8 +39,9 @@ export default function ShareModal({ sourceImage, engineResult, activePresetId, 
     dispCanvas.width = 512 + fw * 2;
     dispCanvas.height = Math.round(512 * (gridH / gridW)) + fw * 2;
     renderToCanvas(pixelCanvas, gridW, gridH, dispCanvas, effectivePreset);
+    const framedDisp = applyFrame(dispCanvas, activeFrame);
 
-    const card = await generateShareCard(origCanvas, dispCanvas, effectivePreset, gridW, format);
+    const card = await generateShareCard(origCanvas, framedDisp, effectivePreset, gridW, format);
     setCardCanvas(card);
     setCardUrl(card.toDataURL('image/png'));
     setLoading(false);

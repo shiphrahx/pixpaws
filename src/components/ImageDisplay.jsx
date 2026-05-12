@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { renderToCanvas } from '../engine/pixelate';
+import { applyFrame } from '../engine/frames';
 import { presets } from '../presets';
 
 const DISPLAY_SIZE = 320;
 const SCRAMBLE_DURATION_MS = 400;
 
-export default function ImageDisplay({ sourceUrl, engineResult, activePresetId, isProcessing }) {
+export default function ImageDisplay({ sourceUrl, engineResult, activePresetId, activeFrame, isProcessing }) {
   const [pixelDataUrl, setPixelDataUrl] = useState(null);
   const [viewMode, setViewMode] = useState('sideBySide');
   const [scrambling, setScrambling] = useState(false);
@@ -27,8 +28,9 @@ export default function ImageDisplay({ sourceUrl, engineResult, activePresetId, 
     canvas.width = DISPLAY_SIZE + fw * 2;
     canvas.height = Math.round(DISPLAY_SIZE * (gridH / gridW)) + fw * 2;
     renderToCanvas(pixelCanvas, gridW, gridH, canvas, preset);
-    setPixelDataUrl(canvas.toDataURL());
-  }, [engineResult, activePresetId]);
+    const framedCanvas = applyFrame(canvas, activeFrame);
+    setPixelDataUrl(framedCanvas.toDataURL());
+  }, [engineResult, activePresetId, activeFrame]);
 
   const preset = presets[activePresetId];
   const dominantBg = preset.bgFill ? `${preset.bgFill}22` : 'rgba(26,26,46,0.04)';

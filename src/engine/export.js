@@ -1,15 +1,18 @@
-import { pixelate, renderToCanvas } from './pixelate';
+import { renderToCanvas } from './pixelate';
+import { applyFrame } from './frames';
 
 const BASE_BLOCK = 8;
 
-export function exportPng(pixelCanvas, gridW, gridH, preset, scale, filename) {
+export function exportPng(pixelCanvas, gridW, gridH, preset, scale, filename, frameId = 'none') {
   const outCanvas = document.createElement('canvas');
   const blockSize = BASE_BLOCK * scale;
   outCanvas.width = gridW * blockSize + (preset.frame?.width ?? 0) * 2;
   outCanvas.height = gridH * blockSize + (preset.frame?.width ?? 0) * 2;
   renderToCanvas(pixelCanvas, gridW, gridH, outCanvas, preset);
 
-  outCanvas.toBlob((blob) => {
+  const framedCanvas = applyFrame(outCanvas, frameId);
+
+  framedCanvas.toBlob((blob) => {
     if (!blob) {
       console.error('pixpaws: export failed — toBlob returned null');
       return;

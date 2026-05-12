@@ -16,6 +16,7 @@ export default function Workspace({ sourceImage, sourceUrl, onReset, onImageLoad
   const [rawBrightness, debouncedBrightness, setBrightness] = useDebounced(0, 150);
   const [rawContrast, debouncedContrast, setContrast] = useDebounced(0, 150);
   const [dithering, setDithering] = useState('floyd-steinberg');
+  const [activeFrame, setActiveFrame] = useState('none');
   const [customPalette, setCustomPalette] = useState(
     ['#000000', '#FFFFFF', '#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF']
   );
@@ -154,6 +155,7 @@ export default function Workspace({ sourceImage, sourceUrl, onReset, onImageLoad
             sourceUrl={workingUrl}
             engineResult={result}
             activePresetId={activePresetId}
+            activeFrame={activeFrame}
             isProcessing={isProcessing}
           />
         </div>
@@ -173,6 +175,8 @@ export default function Workspace({ sourceImage, sourceUrl, onReset, onImageLoad
           onContrast={setContrast}
           dithering={dithering}
           onDithering={setDithering}
+          activeFrame={activeFrame}
+          onFrame={setActiveFrame}
           engineResult={result}
           activePresetId={activePresetId}
         />
@@ -222,6 +226,7 @@ export default function Workspace({ sourceImage, sourceUrl, onReset, onImageLoad
           sourceImage={workingImage}
           engineResult={result}
           activePresetId={activePresetId}
+          activeFrame={activeFrame}
           customPalette={customPalette}
           onClose={() => setShareOpen(false)}
         />
