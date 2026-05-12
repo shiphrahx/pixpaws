@@ -18,47 +18,164 @@ export function applyFrame(pixelCanvas, frameId) {
 function frameGameBoy(pixelCanvas) {
   const pw = pixelCanvas.width;
   const ph = pixelCanvas.height;
-  // Proportional shell padding: ~20% sides, 25% top, 35% bottom
-  const padL = Math.round(pw * 0.22);
-  const padR = Math.round(pw * 0.22);
-  const padT = Math.round(ph * 0.28);
-  const padB = Math.round(ph * 0.40);
-  const W = pw + padL + padR;
-  const H = ph + padT + padB;
+
+  // DMG proportions: screen is roughly 38% of total height, sits ~22% from top
+  // We derive the body size from the screen size
+  const W = Math.round(pw * 2.0);      // body width ~2× screen width
+  const H = Math.round(ph * 4.2);      // body height ~4.2× screen height
+
+  // Screen position: horizontally centred, ~20% from top
+  const screenX = Math.round((W - pw) / 2);
+  const screenY = Math.round(H * 0.10);
 
   const canvas = makeCanvas(W, H);
   const ctx = canvas.getContext('2d');
 
-  // Shell body — warm grey
-  roundRect(ctx, 0, 0, W, H, Math.round(W * 0.12), '#C4CFA1', null);
+  const r = Math.round(W * 0.10); // body corner radius
 
-  // Dark screen bezel
-  const bx = padL - 6, by = padT - 8;
-  const bw = pw + 12, bh = ph + 16;
-  roundRect(ctx, bx, by, bw, bh, 6, '#4A4A4A', null);
+  // ── Shell body ──────────────────────────────────────────────────
+  // Main body (lighter grey, DMG colour)
+  roundRect(ctx, 0, 0, W, H, r, '#C8C8C8', null);
 
-  // Screen area
-  roundRect(ctx, padL, padT, pw, ph, 3, '#9bbc0f', null);
+  // Bottom chamfer: the DMG has an angled bottom-left cut
+  ctx.fillStyle = '#C8C8C8';
+  const chamfer = Math.round(W * 0.18);
+  ctx.beginPath();
+  ctx.moveTo(0, H - chamfer);
+  ctx.lineTo(chamfer, H);
+  ctx.lineTo(W, H);
+  ctx.lineTo(W, H - r);
+  ctx.arcTo(W, H, W - r, H, r);
+  ctx.closePath();
+  ctx.fill();
+  // Re-draw bottom-right round corner properly
+  roundRect(ctx, 0, 0, W, H, r, '#C8C8C8', null);
 
-  // Draw pixel art on screen
-  ctx.drawImage(pixelCanvas, padL, padT);
+  // ── Screen area ─────────────────────────────────────────────────
+  // Outer bezel (dark grey inset)
+  const bezelPad = Math.round(pw * 0.10);
+  const bezelX = screenX - bezelPad;
+  const bezelY = screenY - bezelPad * 1.4;
+  const bezelW = pw + bezelPad * 2;
+  const bezelH = ph + bezelPad * 2.8;
+  roundRect(ctx, bezelX, bezelY, bezelW, bezelH, 8, '#3A3A3A', null);
 
-  // "DOT MATRIX WITH STEREO SOUND" text
-  ctx.fillStyle = '#4A4A4A';
-  ctx.font = `${Math.max(7, Math.round(W * 0.018))}px monospace`;
+  // "DOT MATRIX WITH STEREO SOUND" label strip above screen
+  const labelY = bezelY + 6;
+  ctx.fillStyle = '#888';
+  ctx.font = `${Math.max(5, Math.round(W * 0.022))}px monospace`;
   ctx.textAlign = 'center';
-  ctx.fillText('DOT MATRIX WITH STEREO SOUND', W / 2, padT + ph + 20);
+  ctx.fillText('· DOT MATRIX WITH STEREO SOUND ·', W / 2, labelY + Math.round(W * 0.022));
 
-  // Speaker dots (right side of lower half)
-  const dotY = padT + ph + 38;
-  for (let col = 0; col < 6; col++) {
-    for (let row = 0; row < 3; row++) {
+  // Screen glass (green tint)
+  roundRect(ctx, screenX, screenY, pw, ph, 4, '#8BAC0F', null);
+
+  // Draw pixel art
+  ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(pixelCanvas, screenX, screenY, pw, ph);
+
+  // Power LED (top-left of bezel)
+  ctx.beginPath();
+  ctx.arc(bezelX + 10, bezelY + bezelH - 10, 4, 0, Math.PI * 2);
+  ctx.fillStyle = '#CC0000';
+  ctx.fill();
+
+  // ── Controls area ────────────────────────────────────────────────
+  const ctrlY = screenY + ph + bezelPad * 2 + Math.round(H * 0.04);
+
+  // D-pad (left side)
+  const dpadCX = Math.round(W * 0.25);
+  const dpadCY = ctrlY + Math.round(H * 0.07);
+  const dpadArm = Math.round(W * 0.065);
+  const dpadThick = Math.round(W * 0.055);
+  ctx.fillStyle = '#222';
+  // Horizontal arm
+  ctx.fillRect(dpadCX - dpadArm, dpadCY - dpadThick / 2, dpadArm * 2, dpadThick);
+  // Vertical arm
+  ctx.fillRect(dpadCX - dpadThick / 2, dpadCY - dpadArm, dpadThick, dpadArm * 2);
+  // Centre square
+  ctx.fillRect(dpadCX - dpadThick / 2, dpadCY - dpadThick / 2, dpadThick, dpadThick);
+
+  // A button (right, larger)
+  const btnRightCX = Math.round(W * 0.76);
+  const btnRightCY = ctrlY + Math.round(H * 0.05);
+  const btnR = Math.round(W * 0.055);
+  ctx.beginPath();
+  ctx.arc(btnRightCX, btnRightCY, btnR, 0, Math.PI * 2);
+  ctx.fillStyle = '#8B1A1A';
+  ctx.fill();
+  ctx.fillStyle = '#fff';
+  ctx.font = `bold ${Math.round(btnR * 0.9)}px sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('A', btnRightCX, btnRightCY + 1);
+
+  // B button (left of A, slightly lower)
+  const btnLeftCX = Math.round(W * 0.63);
+  const btnLeftCY = ctrlY + Math.round(H * 0.09);
+  ctx.beginPath();
+  ctx.arc(btnLeftCX, btnLeftCY, btnR, 0, Math.PI * 2);
+  ctx.fillStyle = '#8B1A1A';
+  ctx.fill();
+  ctx.fillStyle = '#fff';
+  ctx.fillText('B', btnLeftCX, btnLeftCY + 1);
+  ctx.textBaseline = 'alphabetic';
+
+  // Select / Start buttons (centre, small oval)
+  const smallBtnY = ctrlY + Math.round(H * 0.10);
+  const smallBtnW = Math.round(W * 0.08);
+  const smallBtnH = Math.round(H * 0.018);
+  const smallBtnR = smallBtnH / 2;
+
+  // Select
+  const selX = Math.round(W * 0.36);
+  roundRect(ctx, selX - smallBtnW / 2, smallBtnY - smallBtnH / 2, smallBtnW, smallBtnH, smallBtnR, '#555', null);
+  ctx.fillStyle = '#aaa';
+  ctx.font = `${Math.max(5, Math.round(H * 0.016))}px sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('SELECT', selX, smallBtnY + smallBtnH + 5);
+
+  // Start
+  const startX = Math.round(W * 0.52);
+  roundRect(ctx, startX - smallBtnW / 2, smallBtnY - smallBtnH / 2, smallBtnW, smallBtnH, smallBtnR, '#555', null);
+  ctx.fillText('START', startX, smallBtnY + smallBtnH + 5);
+  ctx.textBaseline = 'alphabetic';
+
+  // ── Speaker grille (bottom-right, diagonal dots) ─────────────────
+  const spkX = Math.round(W * 0.60);
+  const spkY = Math.round(H * 0.78);
+  const spkCols = 6, spkRows = 4;
+  const spkSpacingX = Math.round(W * 0.038);
+  const spkSpacingY = Math.round(H * 0.022);
+  for (let col = 0; col < spkCols; col++) {
+    for (let row = 0; row < spkRows; row++) {
+      // diagonal offset
+      const ox = row * spkSpacingX * 0.3;
       ctx.beginPath();
-      ctx.arc(W * 0.65 + col * 7, dotY + row * 7, 2, 0, Math.PI * 2);
-      ctx.fillStyle = '#4A4A4A';
+      ctx.arc(spkX + col * spkSpacingX + ox, spkY + row * spkSpacingY, 2.5, 0, Math.PI * 2);
+      ctx.fillStyle = '#999';
       ctx.fill();
     }
   }
+
+  // ── Nintendo wordmark ────────────────────────────────────────────
+  ctx.fillStyle = '#555';
+  ctx.font = `bold ${Math.round(W * 0.038)}px serif`;
+  ctx.textAlign = 'center';
+  ctx.fillText('Nintendo', W / 2, Math.round(H * 0.94));
+
+  // ── GAME BOY logo below screen ───────────────────────────────────
+  const logoY = bezelY + bezelH + Math.round(H * 0.015);
+  ctx.fillStyle = '#1A1A6E';
+  ctx.font = `bold ${Math.round(W * 0.052)}px sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.fillText('GAME BOY', W / 2, logoY + Math.round(W * 0.052));
+
+  // Trademark ™
+  ctx.fillStyle = '#555';
+  ctx.font = `${Math.round(W * 0.022)}px sans-serif`;
+  ctx.fillText('™', W / 2 + ctx.measureText('GAME BOY').width / 2 + 8, logoY + Math.round(W * 0.04));
 
   return canvas;
 }

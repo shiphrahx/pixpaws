@@ -13,10 +13,10 @@ import { presets } from '../presets';
 
 export default function Workspace({ sourceImage, sourceUrl, onReset, onImageLoad }) {
   const [activePresetId, setActivePresetId] = useState('gameboy');
-  const [gridSizeOverride, setGridSizeOverride] = useState(null);
+  const [gridSizeOverride, setGridSizeOverride] = useState(136);
   const [rawBrightness, debouncedBrightness, setBrightness] = useDebounced(0, 150);
   const [rawContrast, debouncedContrast, setContrast] = useDebounced(0, 150);
-  const [dithering, setDithering] = useState('floyd-steinberg');
+  const [dithering, setDithering] = useState('none');
   const [activeFrame, setActiveFrame] = useState('none');
   const [customPalette, setCustomPalette] = useState(
     ['#000000', '#FFFFFF', '#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF']
@@ -43,7 +43,7 @@ export default function Workspace({ sourceImage, sourceUrl, onReset, onImageLoad
 
   const handlePresetChange = useCallback((id) => {
     setActivePresetId(id);
-    setGridSizeOverride(null);
+    setGridSizeOverride(136);
   }, []);
 
   const paletteOverride = activePresetId === 'custom' ? customPalette : null;
