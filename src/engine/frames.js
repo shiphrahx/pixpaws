@@ -1,244 +1,363 @@
-function makeCanvas(w, h) {
-  const c = document.createElement('canvas');
-  c.width = w; c.height = h;
-  return c;
-}
+// ─── Colour constants matching the real DMG-01 ───
+const COLORS = {
+  shellLight: '#C8C4BE',
+  shellMid: '#B0ACA6',
+  shellDark: '#98948E',
+  shellEdge: '#7A7672',
+  panelDark: '#6B6760',
+  panelBorder: '#555250',
+  screenBezel: '#5C5550',
+  screenInner: '#9bbc0f',
+  textDark: '#3A3835',
+  textLight: '#8A8680',
+  textOnPanel: '#9A9690',
+  dpadFace: '#1C1A18',
+  dpadEdge: '#2C2A28',
+  dpadShadow: '#101010',
+  buttonFace: '#8B1A3A',
+  buttonHighlight: '#A82050',
+  buttonShadow: '#5A0E25',
+  startSelectFace: '#6B6760',
+  startSelectShadow: '#555250',
+  grilleDark: '#555250',
+  grilleLight: '#B0ACA6',
+  ledLabel: '#8A8680',
+  ledDot: '#3A6A3A',
+};
 
-export function applyFrame(pixelCanvas, frameId) {
-  if (!frameId || frameId === 'none') return pixelCanvas;
-  switch (frameId) {
-    case 'gameboy':   return frameGameBoy(pixelCanvas);
-    case 'polaroid':  return framePolaroid(pixelCanvas);
-    case 'arcade':    return frameArcade(pixelCanvas);
-    case 'filmstrip': return frameFilmstrip(pixelCanvas);
-    default:          return pixelCanvas;
-  }
-}
+function renderGameBoyFrame(pixelArtCanvas, options = {}) {
+  const scale = options.scale || 1;
+  const s = (v) => Math.round(v * scale);
 
-// ─────────────────────────────────────────────────────────────────
-// Game Boy DMG frame
-// Reference proportions (measured from real photo, W=160 H=255):
-//   Screen top:    18% from top
-//   Screen bottom: 52% from top  → screen h = 34% of body
-//   Screen left:   20% from left
-//   Screen right:  80% from left → screen w = 60% of body
-//   Logo:          54%–63%
-//   Controls:      64%–87%
-//   Speaker:       74%–87%, right 55%–90%
-//   Body ratio:    W:H = 1:1.59
-// ─────────────────────────────────────────────────────────────────
-function frameGameBoy(pixelCanvas) {
-  const pw = pixelCanvas.width;
-  const ph = pixelCanvas.height;
+  const BODY_W = s(320);
+  const BODY_H = s(520);
+  const BODY_RADIUS = s(12);
 
-  // Screen is 60% of body width and 34% of body height
-  // So body = screen / 0.60 wide, screen / 0.34 tall
-  const W = Math.round(pw / 0.60);
-  const H = Math.round(ph / 0.34);
+  const PANEL_X = s(12);
+  const PANEL_Y = s(10);
+  const PANEL_W = BODY_W - s(24);
+  const PANEL_H = s(220);
+  const PANEL_RADIUS = s(8);
 
-  const canvas = makeCanvas(W, H);
+  const SCREEN_BEZEL_X = s(48);
+  const SCREEN_BEZEL_Y = s(32);
+  const SCREEN_BEZEL_W = s(224);
+  const SCREEN_BEZEL_H = s(180);
+  const SCREEN_BEZEL_RADIUS = s(6);
+
+  const SCREEN_X = s(68);
+  const SCREEN_Y = s(52);
+  const SCREEN_W = s(184);
+  const SCREEN_H = s(164);
+
+  const DOT_MATRIX_Y = s(24);
+  const BATTERY_X = s(24);
+  const BATTERY_Y = s(110);
+  const LOGO_Y = s(248);
+
+  const DPAD_CX = s(80);
+  const DPAD_CY = s(340);
+  const DPAD_ARM_W = s(28);
+  const DPAD_ARM_H = s(38);
+  const DPAD_RADIUS = s(3);
+
+  const BTN_A_CX = s(258);
+  const BTN_A_CY = s(320);
+  const BTN_B_CX = s(212);
+  const BTN_B_CY = s(348);
+  const BTN_RADIUS = s(18);
+
+  const SS_Y = s(410);
+  const SELECT_CX = s(112);
+  const START_CX = s(170);
+  const SS_W = s(40);
+  const SS_H = s(10);
+  const SS_RADIUS = s(5);
+  const SS_ANGLE = -25 * (Math.PI / 180);
+
+  const GRILLE_X = s(210);
+  const GRILLE_Y = s(430);
+  const GRILLE_W = s(80);
+  const GRILLE_H = s(60);
+
+  const canvas = document.createElement('canvas');
+  canvas.width = BODY_W + s(20);
+  canvas.height = BODY_H + s(20);
   const ctx = canvas.getContext('2d');
 
-  // ── Helpers ────────────────────────────────────────────────────
-  function rr(x, y, w, h, r, fill, strokeCol, strokeW) {
+  const ox = s(10);
+  const oy = s(10);
+
+  function roundRect(x, y, w, h, r) {
     ctx.beginPath();
     ctx.moveTo(x + r, y);
     ctx.lineTo(x + w - r, y);
-    ctx.arcTo(x + w, y,     x + w, y + r,     r);
+    ctx.arcTo(x + w, y, x + w, y + r, r);
     ctx.lineTo(x + w, y + h - r);
     ctx.arcTo(x + w, y + h, x + w - r, y + h, r);
     ctx.lineTo(x + r, y + h);
-    ctx.arcTo(x, y + h, x, y + h - r,         r);
+    ctx.arcTo(x, y + h, x, y + h - r, r);
     ctx.lineTo(x, y + r);
-    ctx.arcTo(x, y,     x + r, y,             r);
+    ctx.arcTo(x, y, x + r, y, r);
     ctx.closePath();
-    if (fill)      { ctx.fillStyle = fill;          ctx.fill(); }
-    if (strokeCol) { ctx.strokeStyle = strokeCol; ctx.lineWidth = strokeW || 1; ctx.stroke(); }
   }
 
-  // ── Body: rounded rect + bottom-left chamfer ───────────────────
-  const bodyR = Math.round(W * 0.09);
-  const chamfer = Math.round(W * 0.18);
-  ctx.beginPath();
-  ctx.moveTo(bodyR, 0);
-  ctx.lineTo(W - bodyR, 0);
-  ctx.arcTo(W, 0,   W, bodyR,         bodyR);
-  ctx.lineTo(W, H - bodyR);
-  ctx.arcTo(W, H,   W - bodyR, H,     bodyR);
-  ctx.lineTo(chamfer, H);
-  ctx.lineTo(0, H - chamfer);
-  ctx.lineTo(0, bodyR);
-  ctx.arcTo(0, 0,   bodyR, 0,         bodyR);
-  ctx.closePath();
-  ctx.fillStyle = '#C0C0C0';
-  ctx.fill();
+  function fillRoundRect(x, y, w, h, r, color) {
+    ctx.fillStyle = color;
+    roundRect(x, y, w, h, r);
+    ctx.fill();
+  }
 
-  // ── Screen area (18%–52% vertically, 20%–80% horizontally) ────
-  const screenX = Math.round(W * 0.20);
-  const screenY = Math.round(H * 0.18);
-  // Screen should match pixelCanvas dimensions
-  // (already computed: pw = W*0.60, ph = H*0.34)
+  function strokeRoundRect(x, y, w, h, r, color, lineWidth) {
+    ctx.strokeStyle = color;
+    ctx.lineWidth = lineWidth;
+    roundRect(x, y, w, h, r);
+    ctx.stroke();
+  }
 
-  // Purple/violet stripe — thin bar just above screen
-  const stripeH = Math.round(H * 0.025);
-  const stripeY = screenY - stripeH - Math.round(H * 0.005);
-  rr(screenX, stripeY, pw, stripeH, stripeH / 2, '#7B68B0', null);
+  // 1. Body shell
+  fillRoundRect(ox + s(2), oy + s(2), BODY_W, BODY_H, BODY_RADIUS, COLORS.shellEdge);
+  fillRoundRect(ox, oy, BODY_W, BODY_H, BODY_RADIUS, COLORS.shellLight);
+  ctx.save();
+  roundRect(ox, oy, BODY_W, s(60), BODY_RADIUS);
+  ctx.clip();
+  fillRoundRect(ox, oy, BODY_W, s(60), BODY_RADIUS, '#D0CCC6');
+  ctx.restore();
 
-  // "DOT MATRIX WITH STEREO SOUND" inside stripe
-  const dmSize = Math.max(5, Math.round(stripeH * 0.55));
-  ctx.fillStyle = '#D4CCF0';
-  ctx.font = `${dmSize}px monospace`;
+  // 2. Top dark panel
+  fillRoundRect(ox + PANEL_X, oy + PANEL_Y, PANEL_W, PANEL_H, PANEL_RADIUS, COLORS.panelDark);
+  ctx.fillStyle = COLORS.panelBorder;
+  for (let i = 0; i < 3; i++) {
+    ctx.fillRect(ox + PANEL_X + s(8), oy + PANEL_Y + s(3) + i * s(3), PANEL_W - s(16), s(1));
+  }
+
+  // DOT MATRIX text
+  ctx.fillStyle = COLORS.textOnPanel;
+  ctx.font = `${s(6)}px "Helvetica Neue", Helvetica, Arial, sans-serif`;
   ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillText('DOT MATRIX WITH STEREO SOUND', screenX + pw / 2, stripeY + stripeH / 2);
+  ctx.fillText('DOT MATRIX WITH STEREO SOUND', ox + BODY_W / 2, oy + DOT_MATRIX_Y);
 
-  // Screen bezel — very thin darker inset around screen
-  const bpad = Math.round(W * 0.012);
-  rr(screenX - bpad, screenY - bpad, pw + bpad * 2, ph + bpad * 2, 4, '#A0A0A0', null);
+  // 3. Screen bezel
+  fillRoundRect(
+    ox + SCREEN_BEZEL_X, oy + SCREEN_BEZEL_Y,
+    SCREEN_BEZEL_W, SCREEN_BEZEL_H,
+    SCREEN_BEZEL_RADIUS, COLORS.screenBezel
+  );
+  strokeRoundRect(
+    ox + SCREEN_X - s(2), oy + SCREEN_Y - s(2),
+    SCREEN_W + s(4), SCREEN_H + s(4),
+    s(2), '#3A3530', s(1.5)
+  );
 
-  // Battery LED — left of stripe, vertically centred on stripe
-  const ledR = Math.round(W * 0.018);
-  const ledX = screenX - Math.round(W * 0.08);
-  const ledY = stripeY + stripeH / 2;
-  ctx.beginPath();
-  ctx.arc(ledX, ledY, ledR, 0, Math.PI * 2);
-  ctx.fillStyle = '#DD0000';
-  ctx.fill();
-  // "BATTERY" label below LED
-  ctx.fillStyle = '#555555';
-  ctx.font = `${Math.max(4, Math.round(W * 0.028))}px monospace`;
+  // Screen / pixel art
+  if (pixelArtCanvas) {
+    ctx.save();
+    roundRect(ox + SCREEN_X, oy + SCREEN_Y, SCREEN_W, SCREEN_H, s(1));
+    ctx.clip();
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(pixelArtCanvas, ox + SCREEN_X, oy + SCREEN_Y, SCREEN_W, SCREEN_H);
+    ctx.restore();
+  } else {
+    fillRoundRect(ox + SCREEN_X, oy + SCREEN_Y, SCREEN_W, SCREEN_H, s(1), COLORS.screenInner);
+  }
+
+  // 4. Battery indicator
+  ctx.fillStyle = COLORS.textOnPanel;
+  ctx.font = `bold ${s(5)}px "Helvetica Neue", Helvetica, Arial, sans-serif`;
   ctx.textAlign = 'center';
-  ctx.textBaseline = 'top';
-  ctx.fillText('BATTERY', ledX, ledY + ledR + 2);
+  ctx.fillText('BATTERY', ox + BATTERY_X + s(14), oy + BATTERY_Y);
+  ctx.beginPath();
+  ctx.arc(ox + BATTERY_X + s(14), oy + BATTERY_Y + s(10), s(4), 0, Math.PI * 2);
+  ctx.fillStyle = COLORS.ledDot;
+  ctx.fill();
+  ctx.strokeStyle = '#2A4A2A';
+  ctx.lineWidth = s(1);
+  ctx.stroke();
 
-  // Screen glass
-  ctx.imageSmoothingEnabled = false;
-  rr(screenX, screenY, pw, ph, 3, '#8BAC0F', null);
-  ctx.drawImage(pixelCanvas, screenX, screenY, pw, ph);
+  // 5. Screen line decorations
+  ctx.fillStyle = COLORS.panelBorder;
+  const lineY1 = oy + SCREEN_BEZEL_Y + SCREEN_BEZEL_H - s(30);
+  const lineY2 = oy + SCREEN_BEZEL_Y + SCREEN_BEZEL_H - s(20);
+  ctx.fillRect(ox + PANEL_X + s(4), lineY1, SCREEN_BEZEL_X - PANEL_X - s(8), s(1));
+  ctx.fillRect(ox + PANEL_X + s(4), lineY2, SCREEN_BEZEL_X - PANEL_X - s(8), s(1));
 
-  // ── Nintendo GAME BOY™ logo ────────────────────────────────────
-  // Positioned 53%–62% of body height
-  const logoBaseY = Math.round(H * 0.625);
-  const nintendoSize = Math.round(W * 0.072);
-  const gameboySize  = Math.round(W * 0.130);
-
-  ctx.fillStyle = '#1A2FA0';
-  ctx.font = `italic bold ${nintendoSize}px Georgia, serif`;
+  // 6. Nintendo GAME BOY logo
+  ctx.fillStyle = COLORS.textDark;
+  ctx.textAlign = 'center';
+  ctx.save();
+  ctx.font = `italic ${s(14)}px "Times New Roman", Georgia, serif`;
+  ctx.fillText('Nintendo', ox + BODY_W / 2, oy + LOGO_Y);
+  ctx.restore();
+  ctx.font = `bold ${s(24)}px "Helvetica Neue", Helvetica, Arial, sans-serif`;
+  ctx.fillText('GAME BOY', ox + BODY_W / 2, oy + LOGO_Y + s(26));
+  ctx.font = `${s(7)}px "Helvetica Neue", Helvetica, Arial, sans-serif`;
   ctx.textAlign = 'left';
-  ctx.textBaseline = 'alphabetic';
-  const logoLeft = Math.round(W * 0.10);
-  ctx.fillText('Nintendo', logoLeft, logoBaseY);
+  ctx.fillText('™', ox + BODY_W / 2 + s(68), oy + LOGO_Y + s(16));
 
-  ctx.font = `bold ${gameboySize}px Arial Black, sans-serif`;
-  ctx.fillText('GAME BOY', logoLeft, logoBaseY + gameboySize * 1.05);
-
-  // ™ superscript
-  ctx.font = `bold ${Math.round(gameboySize * 0.35)}px Arial, sans-serif`;
-  ctx.textBaseline = 'top';
-  const gbW = (() => {
-    ctx.font = `bold ${gameboySize}px Arial Black, sans-serif`;
-    const m = ctx.measureText('GAME BOY').width;
-    ctx.font = `bold ${Math.round(gameboySize * 0.35)}px Arial, sans-serif`;
-    return m;
-  })();
-  ctx.fillText('™', logoLeft + gbW + 2, logoBaseY - gameboySize * 0.75);
-  ctx.textBaseline = 'alphabetic';
-
-  // ── Controls (64%–87%) ─────────────────────────────────────────
-  const ctrlMidY = Math.round(H * 0.755);
-
-  // D-pad — left quarter of body, cross shape
-  const dpadCX = Math.round(W * 0.235);
-  const dpadCY = ctrlMidY;
-  const arm    = Math.round(W * 0.085);
-  const thick  = Math.round(W * 0.062);
-
-  ctx.fillStyle = '#1A1A30';
-  // horizontal bar
-  rr(dpadCX - arm, dpadCY - thick / 2, arm * 2, thick, Math.round(thick * 0.15), '#1A1A30', null);
-  // vertical bar
-  rr(dpadCX - thick / 2, dpadCY - arm, thick, arm * 2, Math.round(thick * 0.15), '#1A1A30', null);
-
-  // A button (right, higher) — hot pink
-  const btnR = Math.round(W * 0.072);
-  const aBtnX = Math.round(W * 0.785);
-  const aBtnY = ctrlMidY - Math.round(H * 0.038);
+  // 7. D-pad
+  ctx.fillStyle = COLORS.dpadShadow;
   ctx.beginPath();
-  ctx.arc(aBtnX, aBtnY, btnR, 0, Math.PI * 2);
-  ctx.fillStyle = '#C41060';
+  ctx.arc(ox + DPAD_CX, oy + DPAD_CY + s(2), s(44), 0, Math.PI * 2);
   ctx.fill();
-  ctx.fillStyle = '#fff';
-  ctx.font = `bold ${Math.round(btnR * 0.80)}px Arial, sans-serif`;
+  ctx.fillStyle = COLORS.shellDark;
+  ctx.beginPath();
+  ctx.arc(ox + DPAD_CX, oy + DPAD_CY, s(44), 0, Math.PI * 2);
+  ctx.fill();
+  // vertical arm
+  fillRoundRect(
+    ox + DPAD_CX - DPAD_ARM_W / 2, oy + DPAD_CY - DPAD_ARM_H,
+    DPAD_ARM_W, DPAD_ARM_H * 2, DPAD_RADIUS, COLORS.dpadFace
+  );
+  // horizontal arm
+  fillRoundRect(
+    ox + DPAD_CX - DPAD_ARM_H, oy + DPAD_CY - DPAD_ARM_W / 2,
+    DPAD_ARM_H * 2, DPAD_ARM_W, DPAD_RADIUS, COLORS.dpadFace
+  );
+  ctx.beginPath();
+  ctx.arc(ox + DPAD_CX, oy + DPAD_CY, s(6), 0, Math.PI * 2);
+  ctx.fillStyle = COLORS.dpadEdge;
+  ctx.fill();
+  ctx.fillStyle = '#2A2825';
+  drawTriangle(ctx, ox + DPAD_CX,        oy + DPAD_CY - s(24), s(6), 'up');
+  drawTriangle(ctx, ox + DPAD_CX,        oy + DPAD_CY + s(24), s(6), 'down');
+  drawTriangle(ctx, ox + DPAD_CX - s(24), oy + DPAD_CY,        s(6), 'left');
+  drawTriangle(ctx, ox + DPAD_CX + s(24), oy + DPAD_CY,        s(6), 'right');
+
+  // 8. A and B buttons
+  drawButton(ctx, ox + BTN_A_CX, oy + BTN_A_CY, BTN_RADIUS, 'A', s);
+  drawButton(ctx, ox + BTN_B_CX, oy + BTN_B_CY, BTN_RADIUS, 'B', s);
+  ctx.fillStyle = COLORS.textDark;
+  ctx.font = `bold ${s(10)}px "Helvetica Neue", Helvetica, Arial, sans-serif`;
   ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillText('A', aBtnX, aBtnY + 1);
+  ctx.fillText('A', ox + BTN_A_CX + s(18), oy + BTN_A_CY - s(22));
+  ctx.fillText('B', ox + BTN_B_CX - s(18), oy + BTN_B_CY + s(26));
 
-  // B button (left of A, lower)
-  const bBtnX = Math.round(W * 0.640);
-  const bBtnY = ctrlMidY + Math.round(H * 0.020);
-  ctx.beginPath();
-  ctx.arc(bBtnX, bBtnY, btnR, 0, Math.PI * 2);
-  ctx.fillStyle = '#C41060';
-  ctx.fill();
-  ctx.fillStyle = '#fff';
-  ctx.fillText('B', bBtnX, bBtnY + 1);
-  ctx.textBaseline = 'alphabetic';
-
-  // SELECT / START — small tilted ovals, centre of body
-  const ssY    = Math.round(H * 0.845);
-  const ssW    = Math.round(W * 0.110);
-  const ssH    = Math.round(H * 0.020);
-  const ssR    = ssH / 2;
-  const selX   = Math.round(W * 0.355);
-  const startX = Math.round(W * 0.530);
-  const tilt   = -0.20; // radians
-
-  function ovalBtn(cx, cy, label) {
+  // 9. Select / Start
+  function drawOval(cx) {
     ctx.save();
-    ctx.translate(cx, cy);
-    ctx.rotate(tilt);
-    rr(-ssW / 2, -ssH / 2, ssW, ssH, ssR, '#666666', null);
-    ctx.restore();
-    ctx.fillStyle = '#555555';
-    ctx.font = `${Math.max(5, Math.round(H * 0.018))}px monospace`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'top';
-    ctx.fillText(label, cx, cy + ssH / 2 + 4);
-  }
-
-  ovalBtn(selX,   ssY, 'SELECT');
-  ovalBtn(startX, ssY, 'START');
-
-  // ── Speaker grille (diagonal slots, bottom-right) ───────────────
-  // Real DMG: ~6 diagonal parallel slots, angled ~50° from horizontal
-  const grillCX   = Math.round(W * 0.730);
-  const grillCY   = Math.round(H * 0.835);
-  const slotCount = 6;
-  const slotLen   = Math.round(H * 0.060);
-  const slotThick = Math.round(W * 0.020);
-  const slotPitch = Math.round(W * 0.040); // spacing between slots
-  const slotAngle = Math.PI * 0.30;         // ~54° — matches photo
-
-  for (let i = 0; i < slotCount; i++) {
-    const ox = (i - (slotCount - 1) / 2) * slotPitch;
-    ctx.save();
-    ctx.translate(grillCX + ox, grillCY);
-    ctx.rotate(slotAngle);
-    rr(-slotThick / 2, -slotLen / 2, slotThick, slotLen, slotThick / 2, '#9A9A9A', null);
+    ctx.translate(ox + cx, oy + SS_Y);
+    ctx.rotate(SS_ANGLE);
+    fillRoundRect(-SS_W / 2, -SS_H / 2, SS_W, SS_H, SS_RADIUS, COLORS.startSelectFace);
+    ctx.strokeStyle = COLORS.startSelectShadow;
+    ctx.lineWidth = s(1);
+    roundRect(-SS_W / 2, -SS_H / 2, SS_W, SS_H, SS_RADIUS);
+    ctx.stroke();
     ctx.restore();
   }
+  drawOval(SELECT_CX);
+  drawOval(START_CX);
 
-  // ── "NINTENDO" tiny footer ─────────────────────────────────────
-  ctx.fillStyle = '#888888';
-  ctx.font = `${Math.max(5, Math.round(W * 0.038))}px monospace`;
+  ctx.fillStyle = COLORS.textDark;
+  ctx.font = `bold ${s(7)}px "Helvetica Neue", Helvetica, Arial, sans-serif`;
   ctx.textAlign = 'center';
-  ctx.textBaseline = 'alphabetic';
-  ctx.fillText('NINTENDO', W / 2, H - Math.round(H * 0.025));
+  ctx.save();
+  ctx.translate(ox + SELECT_CX, oy + SS_Y + s(14));
+  ctx.rotate(SS_ANGLE);
+  ctx.fillText('SELECT', 0, 0);
+  ctx.restore();
+  ctx.save();
+  ctx.translate(ox + START_CX, oy + SS_Y + s(14));
+  ctx.rotate(SS_ANGLE);
+  ctx.fillText('START', 0, 0);
+  ctx.restore();
+
+  // 10. Speaker grille
+  drawSpeakerGrille(ctx, ox + GRILLE_X, oy + GRILLE_Y, GRILLE_W, GRILLE_H, s);
+
+  // 11. Bottom ridge
+  ctx.fillStyle = COLORS.shellMid;
+  ctx.fillRect(ox + s(20), oy + BODY_H - s(14), BODY_W - s(40), s(1));
 
   return canvas;
 }
 
-// ── Polaroid ───────────────────────────────────────────────────────
+function drawTriangle(ctx, cx, cy, size, direction) {
+  ctx.beginPath();
+  switch (direction) {
+    case 'up':
+      ctx.moveTo(cx, cy - size);
+      ctx.lineTo(cx - size * 0.7, cy + size * 0.4);
+      ctx.lineTo(cx + size * 0.7, cy + size * 0.4);
+      break;
+    case 'down':
+      ctx.moveTo(cx, cy + size);
+      ctx.lineTo(cx - size * 0.7, cy - size * 0.4);
+      ctx.lineTo(cx + size * 0.7, cy - size * 0.4);
+      break;
+    case 'left':
+      ctx.moveTo(cx - size, cy);
+      ctx.lineTo(cx + size * 0.4, cy - size * 0.7);
+      ctx.lineTo(cx + size * 0.4, cy + size * 0.7);
+      break;
+    case 'right':
+      ctx.moveTo(cx + size, cy);
+      ctx.lineTo(cx - size * 0.4, cy - size * 0.7);
+      ctx.lineTo(cx - size * 0.4, cy + size * 0.7);
+      break;
+  }
+  ctx.closePath();
+  ctx.fill();
+}
+
+function drawButton(ctx, cx, cy, radius, label, s) {
+  ctx.beginPath();
+  ctx.arc(cx, cy + s(2), radius + s(2), 0, Math.PI * 2);
+  ctx.fillStyle = COLORS.buttonShadow;
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+  ctx.fillStyle = COLORS.buttonFace;
+  ctx.fill();
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+  ctx.clip();
+  ctx.beginPath();
+  ctx.arc(cx, cy - s(6), radius - s(2), 0, Math.PI * 2);
+  ctx.fillStyle = COLORS.buttonHighlight;
+  ctx.fill();
+  ctx.restore();
+  ctx.beginPath();
+  ctx.arc(cx, cy, radius - s(1), 0, Math.PI * 2);
+  ctx.strokeStyle = COLORS.buttonShadow;
+  ctx.lineWidth = s(0.5);
+  ctx.stroke();
+}
+
+function drawSpeakerGrille(ctx, x, y, w, h, s) {
+  const slotCount = 6;
+  const slotWidth = s(4);
+  const gap = (w - slotCount * slotWidth) / (slotCount + 1);
+  const angle = -25 * (Math.PI / 180);
+
+  ctx.save();
+  ctx.translate(x + w / 2, y + h / 2);
+  ctx.rotate(angle);
+
+  for (let i = 0; i < slotCount; i++) {
+    const sx = -w / 2 + gap + i * (slotWidth + gap);
+    const slotH = h - s(8);
+    const r = slotWidth / 2;
+    ctx.fillStyle = COLORS.grilleDark;
+    ctx.beginPath();
+    ctx.moveTo(sx + r, -slotH / 2);
+    ctx.lineTo(sx + slotWidth - r, -slotH / 2);
+    ctx.arcTo(sx + slotWidth, -slotH / 2, sx + slotWidth, -slotH / 2 + r, r);
+    ctx.lineTo(sx + slotWidth, slotH / 2 - r);
+    ctx.arcTo(sx + slotWidth, slotH / 2, sx + slotWidth - r, slotH / 2, r);
+    ctx.lineTo(sx + r, slotH / 2);
+    ctx.arcTo(sx, slotH / 2, sx, slotH / 2 - r, r);
+    ctx.lineTo(sx, -slotH / 2 + r);
+    ctx.arcTo(sx, -slotH / 2, sx + r, -slotH / 2, r);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  ctx.restore();
+}
+
+// ── Other frames ────────────────────────────────────────────────────
+
 function framePolaroid(pixelCanvas) {
   const pw = pixelCanvas.width;
   const ph = pixelCanvas.height;
@@ -247,27 +366,22 @@ function framePolaroid(pixelCanvas) {
   const bot  = Math.round(ph * 0.30);
   const W = pw + side * 2;
   const H = ph + top + bot;
-
-  const canvas = makeCanvas(W, H);
+  const canvas = document.createElement('canvas');
+  canvas.width = W; canvas.height = H;
   const ctx = canvas.getContext('2d');
-
   ctx.fillStyle = '#FFFFFF';
   ctx.shadowColor = 'rgba(0,0,0,0.15)';
   ctx.shadowBlur = 12;
   ctx.shadowOffsetY = 4;
-  roundRect(ctx, 0, 0, W, H, 4, '#FFFFFF', null);
+  ctx.fillRect(0, 0, W, H);
   ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
-
   ctx.strokeStyle = '#E0E0E0';
   ctx.lineWidth = 1;
   ctx.strokeRect(side - 2, top - 2, pw + 4, ph + 4);
-
   ctx.drawImage(pixelCanvas, side, top);
-
   return canvas;
 }
 
-// ── Arcade ─────────────────────────────────────────────────────────
 function frameArcade(pixelCanvas) {
   const pw = pixelCanvas.width;
   const ph = pixelCanvas.height;
@@ -276,83 +390,79 @@ function frameArcade(pixelCanvas) {
   const padB = Math.round(ph * 0.15);
   const W = pw + padX * 2;
   const H = ph + padT + padB;
-
-  const canvas = makeCanvas(W, H);
+  const canvas = document.createElement('canvas');
+  canvas.width = W; canvas.height = H;
   const ctx = canvas.getContext('2d');
-
   ctx.fillStyle = '#1A1A2E';
   ctx.fillRect(0, 0, W, H);
-
   ctx.fillStyle = '#D85A30';
-  ctx.fillRect(0, 0, W, 8);
-  ctx.fillRect(0, H - 8, W, 8);
-  ctx.fillRect(0, 0, 8, H);
-  ctx.fillRect(W - 8, 0, 8, H);
-
+  ctx.fillRect(0, 0, W, 8); ctx.fillRect(0, H - 8, W, 8);
+  ctx.fillRect(0, 0, 8, H); ctx.fillRect(W - 8, 0, 8, H);
   ctx.fillStyle = '#F0E68C';
   ctx.font = `bold ${Math.max(10, Math.round(W * 0.04))}px monospace`;
   ctx.textAlign = 'center';
   ctx.fillText('pixpaws', W / 2, padT * 0.6);
-
-  function drawStar(cx, cy, r) {
+  function star(cx, cy, r) {
     ctx.fillStyle = '#F0E68C';
     for (let i = 0; i < 5; i++) {
       const a = (i * Math.PI * 2) / 5 - Math.PI / 2;
       ctx.fillRect(Math.round(cx + Math.cos(a) * r) - 2, Math.round(cy + Math.sin(a) * r) - 2, 4, 4);
     }
   }
-  drawStar(24, 24, 10); drawStar(W - 24, 24, 10);
-  drawStar(24, H - 24, 10); drawStar(W - 24, H - 24, 10);
-
+  star(24, 24, 10); star(W - 24, 24, 10); star(24, H - 24, 10); star(W - 24, H - 24, 10);
   ctx.fillStyle = '#000';
   ctx.fillRect(padX - 4, padT - 4, pw + 8, ph + 8);
   ctx.drawImage(pixelCanvas, padX, padT);
-
   return canvas;
 }
 
-// ── Film Strip ─────────────────────────────────────────────────────
 function frameFilmstrip(pixelCanvas) {
   const pw = pixelCanvas.width;
   const ph = pixelCanvas.height;
   const sprocketH = Math.round(ph * 0.12);
   const W = pw + 32;
   const H = ph + sprocketH * 2;
-
-  const canvas = makeCanvas(W, H);
+  const canvas = document.createElement('canvas');
+  canvas.width = W; canvas.height = H;
   const ctx = canvas.getContext('2d');
-
   ctx.fillStyle = '#1C1008';
   ctx.fillRect(0, 0, W, H);
-
-  const holeW = 16, holeH = 10;
+  const holeW = 16, holeH = 10, holeR = 3;
   const holeCount = Math.floor(W / 24);
-  const holeSpacing = W / holeCount;
+  const sp = W / holeCount;
   for (let i = 0; i < holeCount; i++) {
-    const hx = i * holeSpacing + holeSpacing / 2 - holeW / 2;
-    roundRect(ctx, hx, (sprocketH - holeH) / 2, holeW, holeH, 3, '#000', null);
-    roundRect(ctx, hx, ph + sprocketH + (sprocketH - holeH) / 2, holeW, holeH, 3, '#000', null);
+    const hx = i * sp + sp / 2 - holeW / 2;
+    [0, ph + sprocketH].forEach(hy => {
+      ctx.beginPath();
+      ctx.moveTo(hx + holeR, hy + (sprocketH - holeH) / 2);
+      ctx.lineTo(hx + holeW - holeR, hy + (sprocketH - holeH) / 2);
+      ctx.arcTo(hx + holeW, hy + (sprocketH - holeH) / 2, hx + holeW, hy + (sprocketH - holeH) / 2 + holeR, holeR);
+      ctx.lineTo(hx + holeW, hy + (sprocketH + holeH) / 2 - holeR);
+      ctx.arcTo(hx + holeW, hy + (sprocketH + holeH) / 2, hx + holeW - holeR, hy + (sprocketH + holeH) / 2, holeR);
+      ctx.lineTo(hx + holeR, hy + (sprocketH + holeH) / 2);
+      ctx.arcTo(hx, hy + (sprocketH + holeH) / 2, hx, hy + (sprocketH + holeH) / 2 - holeR, holeR);
+      ctx.lineTo(hx, hy + (sprocketH - holeH) / 2 + holeR);
+      ctx.arcTo(hx, hy + (sprocketH - holeH) / 2, hx + holeR, hy + (sprocketH - holeH) / 2, holeR);
+      ctx.closePath();
+      ctx.fillStyle = '#000';
+      ctx.fill();
+    });
   }
-
   ctx.drawImage(pixelCanvas, 16, sprocketH);
   return canvas;
 }
 
-// ── Shared util ────────────────────────────────────────────────────
-function roundRect(ctx, x, y, w, h, r, fill, stroke) {
-  ctx.beginPath();
-  ctx.moveTo(x + r, y);
-  ctx.lineTo(x + w - r, y);
-  ctx.arcTo(x + w, y, x + w, y + r, r);
-  ctx.lineTo(x + w, y + h - r);
-  ctx.arcTo(x + w, y + h, x + w - r, y + h, r);
-  ctx.lineTo(x + r, y + h);
-  ctx.arcTo(x, y + h, x, y + h - r, r);
-  ctx.lineTo(x, y + r);
-  ctx.arcTo(x, y, x + r, y, r);
-  ctx.closePath();
-  if (fill)   { ctx.fillStyle = fill;     ctx.fill(); }
-  if (stroke) { ctx.strokeStyle = stroke; ctx.stroke(); }
+// ── Public API ───────────────────────────────────────────────────────
+
+export function applyFrame(pixelCanvas, frameId) {
+  if (!frameId || frameId === 'none') return pixelCanvas;
+  switch (frameId) {
+    case 'gameboy':   return renderGameBoyFrame(pixelCanvas);
+    case 'polaroid':  return framePolaroid(pixelCanvas);
+    case 'arcade':    return frameArcade(pixelCanvas);
+    case 'filmstrip': return frameFilmstrip(pixelCanvas);
+    default:          return pixelCanvas;
+  }
 }
 
 export const FRAME_OPTIONS = [
