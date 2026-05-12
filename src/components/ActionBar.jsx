@@ -29,6 +29,7 @@ export default function ActionBar({ onReset, gridSize, defaultGrid, brightness, 
           <OutlineButton
             onClick={() => setShowAdjust((v) => !v)}
             active={showAdjust}
+            data-adjust-toggle
           >
             <AdjustIcon /> Adjust grid
           </OutlineButton>

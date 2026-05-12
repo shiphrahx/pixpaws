@@ -8,6 +8,7 @@ export default function AdjustPanel({ gridSize, defaultGrid, brightness, contras
       if (e.key === 'Escape') onClose();
     }
     function onOutside(e) {
+      if (e.target.closest('[data-adjust-toggle]')) return;
       if (panelRef.current && !panelRef.current.contains(e.target)) onClose();
     }
     document.addEventListener('keydown', onKey);
