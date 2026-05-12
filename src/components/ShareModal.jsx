@@ -1,18 +1,11 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { generateShareCard } from '../engine/shareCard';
 import { presets } from '../presets';
 import { renderToCanvas } from '../engine/pixelate';
 import { applyFrame } from '../engine/frames';
 
-const FORMATS = [
-  { value: 'landscape', label: 'Landscape (Twitter)' },
-  { value: 'square',    label: 'Square (Instagram)' },
-];
-
-export default function ShareModal({ sourceImage, engineResult, activePresetId, activeFrame, customPalette, onClose }) {
-  const [format, setFormat] = useState('landscape');
-  const [cardUrl, setCardUrl] = useState(null);
-  const [cardCanvas, setCardCanvas] = useState(null);
+export default function ShareModal({ engineResult, activePresetId, activeFrame, customPalette, onClose }) {
+  const [imageUrl, setImageUrl] = useState(null);
+  const [imageCanvas, setImageCanvas] = useState(null);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
   const backdropRef = useRef(null);
@@ -21,35 +14,23 @@ export default function ShareModal({ sourceImage, engineResult, activePresetId, 
   const effectivePalette = activePresetId === 'custom' && customPalette ? customPalette : preset.palette;
   const effectivePreset = activePresetId === 'custom' ? { ...preset, palette: effectivePalette } : preset;
 
-  const buildCard = useCallback(async () => {
-    if (!sourceImage || !engineResult) return;
+  useEffect(() => {
+    if (!engineResult) return;
     setLoading(true);
 
-    // Draw original image to a canvas
-    const origCanvas = document.createElement('canvas');
-    origCanvas.width = sourceImage.naturalWidth || sourceImage.width;
-    origCanvas.height = sourceImage.naturalHeight || sourceImage.height;
-    const origCtx = origCanvas.getContext('2d');
-    origCtx.drawImage(sourceImage, 0, 0);
-
-    // Build framed pixel canvas
     const { pixelCanvas, gridW, gridH } = engineResult;
     const dispCanvas = document.createElement('canvas');
     const fw = effectivePreset.frame?.width ?? 0;
     dispCanvas.width = 512 + fw * 2;
     dispCanvas.height = Math.round(512 * (gridH / gridW)) + fw * 2;
     renderToCanvas(pixelCanvas, gridW, gridH, dispCanvas, effectivePreset);
-    const framedDisp = applyFrame(dispCanvas, activeFrame);
+    const framed = applyFrame(dispCanvas, activeFrame);
 
-    const card = await generateShareCard(origCanvas, framedDisp, effectivePreset, gridW, format);
-    setCardCanvas(card);
-    setCardUrl(card.toDataURL('image/png'));
+    setImageCanvas(framed);
+    setImageUrl(framed.toDataURL('image/png'));
     setLoading(false);
-  }, [sourceImage, engineResult, effectivePreset, format]);
+  }, [engineResult, effectivePreset, activeFrame]);
 
-  useEffect(() => { buildCard(); }, [buildCard]);
-
-  // Close on Escape
   useEffect(() => {
     const onKey = (e) => { if (e.key === 'Escape') onClose(); };
     document.addEventListener('keydown', onKey);
@@ -57,25 +38,24 @@ export default function ShareModal({ sourceImage, engineResult, activePresetId, 
   }, [onClose]);
 
   const download = useCallback(() => {
-    if (!cardCanvas) return;
+    if (!imageCanvas) return;
     const a = document.createElement('a');
-    a.href = cardCanvas.toDataURL('image/png');
-    a.download = `pixpaws-share-${activePresetId}-${format}.png`;
+    a.href = imageCanvas.toDataURL('image/png');
+    a.download = `pixpaws-${activePresetId}.png`;
     a.click();
-  }, [cardCanvas, activePresetId, format]);
+  }, [imageCanvas, activePresetId]);
 
   const copyToClipboard = useCallback(async () => {
-    if (!cardCanvas) return;
+    if (!imageCanvas) return;
     try {
-      const blob = await new Promise(res => cardCanvas.toBlob(res, 'image/png'));
+      const blob = await new Promise(res => imageCanvas.toBlob(res, 'image/png'));
       await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (_) {
-      // Fallback: just download
       download();
     }
-  }, [cardCanvas, download]);
+  }, [imageCanvas, download]);
 
   return (
     <div
@@ -91,20 +71,19 @@ export default function ShareModal({ sourceImage, engineResult, activePresetId, 
       <div
         role="dialog"
         aria-modal="true"
-        aria-label="Share card"
+        aria-label="Share pixel art"
         style={{
           background: 'var(--surface)',
           borderRadius: 16,
           padding: '1.5rem',
           width: '100%',
-          maxWidth: 640,
+          maxWidth: 480,
           position: 'relative',
           boxShadow: '0 24px 64px rgba(0,0,0,0.3)',
           maxHeight: '90vh',
           overflowY: 'auto',
         }}
       >
-        {/* Close button */}
         <button
           onClick={onClose}
           style={{
@@ -115,38 +94,18 @@ export default function ShareModal({ sourceImage, engineResult, activePresetId, 
           aria-label="Close"
         >×</button>
 
-        <h2 style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: 'var(--text-primary)' }}>
+        <h2 style={{ fontSize: 14, fontWeight: 600, marginBottom: 16, color: 'var(--text-primary)' }}>
           Share your pixel art
         </h2>
 
-        {/* Format toggle */}
-        <div className="flex rounded-lg overflow-hidden mb-4" style={{ border: '0.5px solid var(--border)', display: 'inline-flex' }}>
-          {FORMATS.map(f => (
-            <button
-              key={f.value}
-              onClick={() => setFormat(f.value)}
-              style={{
-                padding: '6px 14px', fontSize: 12, border: 'none', cursor: 'pointer',
-                background: format === f.value ? '#D85A30' : 'var(--bg-secondary, #F0EBE3)',
-                color: format === f.value ? '#fff' : 'var(--text-secondary)',
-                fontWeight: format === f.value ? 500 : 400,
-              }}
-            >
-              {f.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Card preview */}
         <div style={{ borderRadius: 8, overflow: 'hidden', background: 'var(--bg-secondary, #F0EBE3)', marginBottom: 16, minHeight: 120, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           {loading ? (
-            <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>Generating card…</span>
+            <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>Generating…</span>
           ) : (
-            <img src={cardUrl} alt="Share card preview" style={{ width: '100%', display: 'block', borderRadius: 8 }} />
+            <img src={imageUrl} alt="Pixel art" style={{ maxWidth: '100%', display: 'block', imageRendering: 'pixelated' }} />
           )}
         </div>
 
-        {/* Actions */}
         <div className="flex gap-2">
           <button
             onClick={download}
@@ -157,7 +116,7 @@ export default function ShareModal({ sourceImage, engineResult, activePresetId, 
               cursor: loading ? 'default' : 'pointer', opacity: loading ? 0.5 : 1,
             }}
           >
-            Download card
+            Download
           </button>
           <button
             onClick={copyToClipboard}

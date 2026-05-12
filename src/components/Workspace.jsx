@@ -238,7 +238,6 @@ export default function Workspace({ sourceImage, sourceUrl, onReset, onImageLoad
 
       {shareOpen && (
         <ShareModal
-          sourceImage={workingImage}
           engineResult={result}
           activePresetId={activePresetId}
           activeFrame={activeFrame}
