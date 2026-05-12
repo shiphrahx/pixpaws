@@ -2,21 +2,40 @@ import { presetList } from '../presets';
 
 export default function PresetBar({ activeId, onChange }) {
   return (
-    <div
-      role="radiogroup"
-      aria-label="Style preset"
-      className="flex items-center gap-2 px-4 py-3 overflow-x-auto scrollbar-hide"
-      style={{ borderBottom: '0.5px solid var(--border)' }}
-    >
-      <span style={{ fontSize: 12, color: 'var(--text-tertiary, #9B9BAA)', marginRight: 4 }}>Style</span>
-      {presetList.map((preset) => (
-        <PresetButton
-          key={preset.id}
-          preset={preset}
-          active={activeId === preset.id}
-          onClick={() => onChange(preset.id)}
-        />
-      ))}
+    <div style={{ position: 'relative', borderBottom: '0.5px solid var(--border)' }}>
+      {/* Fade left */}
+      <div
+        aria-hidden
+        style={{
+          position: 'absolute', left: 0, top: 0, bottom: 0, width: 32, zIndex: 1,
+          background: 'linear-gradient(to right, var(--surface), transparent)',
+          pointerEvents: 'none',
+        }}
+      />
+      {/* Fade right */}
+      <div
+        aria-hidden
+        style={{
+          position: 'absolute', right: 0, top: 0, bottom: 0, width: 32, zIndex: 1,
+          background: 'linear-gradient(to left, var(--surface), transparent)',
+          pointerEvents: 'none',
+        }}
+      />
+      <div
+        role="radiogroup"
+        aria-label="Style preset"
+        className="flex items-center gap-2 px-4 py-3 overflow-x-auto scrollbar-hide"
+      >
+        <span style={{ fontSize: 12, color: 'var(--text-tertiary, #9B9BAA)', marginRight: 4, flexShrink: 0 }}>Style</span>
+        {presetList.map((preset) => (
+          <PresetButton
+            key={preset.id}
+            preset={preset}
+            active={activeId === preset.id}
+            onClick={() => onChange(preset.id)}
+          />
+        ))}
+      </div>
     </div>
   );
 }
