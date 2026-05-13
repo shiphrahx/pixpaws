@@ -29,16 +29,16 @@ You need a formula that accounts for how human eyes actually perceive colour (be
 
 10 retro and modern palettes:
 
-- **Game Boy** — The classic 4-colour DMG green
-- **NES** — Full 54-colour PPU palette
-- **SNES** — 16-colour curated palette
-- **CGA** — 4-colour cyan/magenta nostalgia
-- **Commodore 64** — The C64's iconic 16 colours
-- **ZX Spectrum** — 15-colour British micro energy
-- **Pico-8** — The beloved fantasy console palette
-- **Modern indie** — Stardew Valley vibes
-- **Pastel** — Soft tones 
-- **Monochrome** — Pure black and white, 1-bit beauty
+- **Game Boy** - The classic 4-colour DMG green
+- **NES** - Full 54-colour PPU palette
+- **SNES** - 16-colour curated palette
+- **CGA** - 4-colour cyan/magenta nostalgia
+- **Commodore 64** - The C64's iconic 16 colours
+- **ZX Spectrum** - 15-colour British micro energy
+- **Pico-8** - The beloved fantasy console palette
+- **Modern indie** - Stardew Valley vibes
+- **Pastel** - Soft tones 
+- **Monochrome** - B&W
 
 ### 🖼️ Frame overlays
 
