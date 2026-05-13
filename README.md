@@ -22,7 +22,7 @@ A free, client-side web app that transforms your pet photos into retro pixel art
 
 This is a *pet* project (pun intended).
 
-I built pixpaws during my holidays for fun due to my 2 favourite things **pets** and **video games**. 
+I built pixpaws during my holidays for fun due to my 2 favourite things pets and video games. 
 
 Although the idea is simple, in practice, the image processing was quite fun to figure out. Finding out how to map millions of colours to a 4 or 15 pallete was interesting.
 
