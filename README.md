@@ -18,7 +18,7 @@ Although the idea is simple, in practice, the image processing was quite fun to 
 
 My first approach was to pick the closest colour using basic maths, and that ended up producing wrong results 🤡
 
-You need a formula that accounts for how human eyes actually perceive colour (because we're way more sensitive to green than blue, the distance calculation has to compensate). Dithering was another one. Floyd-Steinberg looks simple until you realise the browser's Uint8ClampedArray quietly kills your error propagation precision and you get ugly banding instead of smooth gradients. 
+You need a formula that accounts for how human eyes actually perceive colour (because we're way more sensitive to green than blue, the distance calculation has to compensate). Some with Dithering. Floyd-Steinberg looks simple until you realise the browser's Uint8ClampedArray quietly kills your error propagation precision and you get ugly banding instead of smooth gradients 🤡.
 
 ---
 
@@ -26,7 +26,7 @@ You need a formula that accounts for how human eyes actually perceive colour (be
 
 ### 🎨 Style presets
 
-Choose from 10 retro and modern palettes, each inspired by real gaming hardware:
+10 retro and modern palettes:
 
 - **Game Boy** — The classic 4-colour DMG green
 - **NES** — Full 54-colour PPU palette
@@ -43,7 +43,7 @@ Choose from 10 retro and modern palettes, each inspired by real gaming hardware:
 
 ![pixpaws demo — cycling through frame overlays](demo-frames.gif)
 
-- **Game Boy**g
+- **Game Boy**
 - **Polaroid**
 - **Arcade** 
 - **Film strip** 
@@ -53,14 +53,14 @@ Choose from 10 retro and modern palettes, each inspired by real gaming hardware:
 
 ![pixpaws demo — switching dithering modes](demo-dithering.gif)
 
-- **Floyd-Steinberg** — Smooth error diffusion
-- **Ordered (Bayer)** — Crosshatch pattern
-- **Atkinson** — High contrast, classic Mac OS feel
-- **None** — Flat colour mapping
+- **Floyd-Steinberg** - Smooth error diffusion
+- **Ordered (Bayer)** - Crosshatch pattern
+- **Atkinson** - High contrast, classic Mac OS feel
+- **None** - Flat colour mapping
 
 ---
 
-## Tech
+## Stack
 
 - **React** + **Vite** + **Tailwind CSS**
 - **HTML Canvas API** for all image processing
