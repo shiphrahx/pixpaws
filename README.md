@@ -1,4 +1,11 @@
+<div align="center">
+  
 # 🐾 pixpaws
+
+![GitHub Pages](https://img.shields.io/github/deployments/shiphrahx/pixpaws/github-pages?label=live%20demo&color=D85A30)
+![License](https://img.shields.io/github/license/shiphrahx/pixpaws?color=D85A30)
+![Built with React](https://img.shields.io/badge/built%20with-React-61DAFB?logo=react&logoColor=white)
+![Vite](https://img.shields.io/badge/vite-646CFF?logo=vite&logoColor=white)
 
 **Your pet, but in pixels.**
 
@@ -6,6 +13,8 @@ A free, client-side web app that transforms your pet photos into retro pixel art
 
 ![pixpaws demo — cycling through style presets](demo-styles.gif)
 (this handsome lad is Sebastian, my latest rescue!)
+
+</div>
 
 ---
 
