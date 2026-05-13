@@ -2,7 +2,7 @@
   
 # 🐾 pixpaws
 
-![GitHub Pages](https://img.shields.io/github/deployments/shiphrahx/pixpaws/github-pages?label=live%20demo&color=D85A30)
+![GitHub Pages](https://img.shields.io/github/deployments/shiphrahx/pixpaws/github-pages?label=live%20demo&color=6cd400)
 ![License](https://img.shields.io/github/license/shiphrahx/pixpaws?color=D85A30)
 ![Built with React](https://img.shields.io/badge/built%20with-React-61DAFB?logo=react&logoColor=white)
 ![Vite](https://img.shields.io/badge/vite-646CFF?logo=vite&logoColor=white)
