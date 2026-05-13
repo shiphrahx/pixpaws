@@ -5,6 +5,7 @@
 A free, client-side web app that transforms your pet photos into retro pixel art using classic gaming palettes.
 
 ![pixpaws demo — cycling through style presets](demo-styles.gif)
+(this handsome lad is Sebastian, my latest rescue!)
 
 ---
 
