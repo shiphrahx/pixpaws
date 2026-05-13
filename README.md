@@ -14,7 +14,7 @@ This is a *pet* project (pun intended).
 
 I built pixpaws during my holidays for fun due to my 2 favourite things **pets** and **video games**. 
 
-Although the idea is simple (upload a photo of your pet and that's it), in practice, the image processing was quite fun to figure out. Finding out how to map millions of colours to a 4 or 15 pallete was interesting.
+Although the idea is simple, in practice, the image processing was quite fun to figure out. Finding out how to map millions of colours to a 4 or 15 pallete was interesting.
 
 My first approach was to pick the closest colour using basic maths, and that ended up producing wrong results 🤡
 
