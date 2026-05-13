@@ -28,7 +28,7 @@ Although the idea is simple, in practice, the image processing was quite fun to 
 
 My first approach was to pick the closest colour using basic maths, and that ended up producing wrong results 🤡
 
-You need a formula that accounts for how human eyes actually perceive colour (because we're way more sensitive to green than blue, the distance calculation has to compensate). Some with Dithering. Floyd-Steinberg looks simple until you realise the browser's Uint8ClampedArray quietly kills your error propagation precision and you get ugly banding instead of smooth gradients 🤡.
+Turns out you need a formula that accounts for how human eyes actually perceive colour (because we're way more sensitive to green than blue, the distance calculation has to compensate). Some with Dithering. Floyd-Steinberg looks simple until you realise the browser's Uint8ClampedArray quietly kills your error propagation precision and you get ugly banding instead of smooth gradients 🤡.
 
 ---
 
